@@ -1,0 +1,25 @@
+.root {
+    -fx-background-color: #213555;
+}
+
+.creamyText{
+    -fx-text-fill: #D8C4B6;
+}
+
+.windowButtons{
+    -fx-background-color: #3E5879;
+    -fx-background-radius: 0;
+    -fx-text-fill: #D8C4B6;
+    -fx-max-height: 40px;
+    -fx-min-width: 40px;
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+}
+
+.windowButtons:hover{
+    -fx-background-color: #354a66;
+}
+
+#exitButton:hover{
+    -fx-background-color: red;
+}
