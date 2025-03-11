@@ -149,7 +149,7 @@ public class CreateProfileControler {
                 statement.close();
                 connection.close();
             } catch (Exception e){
-                showAlert("very worng","very worng","very worng",AlertType.WARNING);
+                showAlert("very wrong","very wrong","very wrong",AlertType.WARNING);
             }
             showAlert("Success","Success","Successfully created a profile",AlertType.CONFIRMATION);
             clearFields();
