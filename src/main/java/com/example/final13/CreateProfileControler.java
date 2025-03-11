@@ -1,7 +1,6 @@
 package com.example.final13;
 
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,20 +31,91 @@ public class CreateProfileControler {
     @FXML private PasswordField passwordField1;
     @FXML private PasswordField passwordField2;
 
+/*
+    //run separate thread if needed in future
+    @FXML
+    private void createProfile() {
+    new Thread(() -> {
+        Connection connection = OracleConnection.getConnection();
+        Statement statement = null;
+        int usrID;
+        String geslo;
+        String stmnt;
+        String usr;
+
+        if (usernameField.getText().isEmpty() || passwordField1.getText().isEmpty() || passwordField2.getText().isEmpty()) {
+            Platform.runLater(() -> showAlert("Error", "Missing information", "Please fill out every field.", AlertType.ERROR));
+            return;
+        }
+
+        if (usernameField.getText().length() < 3) {
+            Platform.runLater(() -> showAlert("Error", "Username length not long enough", "Username has to be longer than 3 letters.", AlertType.ERROR));
+            return;
+        }
+
+        if (!passwordCheck(passwordField1.getText())) {
+            Platform.runLater(() -> showAlert("Error", "Password too weak", "Please use a letter, number and a special symbol in your password with the length of 8 characters or more.", AlertType.ERROR));
+            return;
+        }
+
+        if (!passwordField1.getText().equals(passwordField2.getText())) {
+            Platform.runLater(() -> showAlert("Error", "Passwords do not match", "Please make sure both passwords are the same.", AlertType.ERROR));
+            return;
+        }
+
+        try {
+            geslo = StaticVars.getMd5(passwordField1.getText());
+            usrID = getID();
+            usr = usernameField.getText();
+
+            stmnt = "INSERT INTO mat_users (id, username, password) VALUES (" + usrID + ", '" + usr + "', '" + geslo + "')";
+            assert connection != null;
+            statement = connection.createStatement();
+
+            connection.setAutoCommit(false);
+            statement.execute(stmnt);
+            connection.commit();
+
+            Platform.runLater(() -> showAlert("Success", "Success", "Successfully created a profile", AlertType.CONFIRMATION));
+
+        } catch (Exception e) {
+            Platform.runLater(() -> showAlert("Error", "Database Error", "There was an unexpected database error", AlertType.ERROR));
+        } finally {
+            try {
+                assert statement != null;
+                statement.close();
+                connection.close();
+            } catch (Exception e) {
+                Platform.runLater(() -> showAlert("Very Wrong", "Very Wrong", "Very Wrong", AlertType.WARNING));
+            }
+            Platform.runLater(this::clearFields);
+        }
+    }).start();
+} */
 
     @FXML
     private void createProfile() {
 
         Connection connection = OracleConnection.getConnection();
         Statement statement = null;
-        int usrID = 0;
-        String geslo = "";
-        String stmnt = "";
+        int usrID;
+        String geslo;
+        String stmnt;
         String usr;
 
 
         if (usernameField.getText().isEmpty() || passwordField1.getText().isEmpty() || passwordField2.getText().isEmpty()) {
             showAlert("Error", "Missing information", "Please fill out every field.", AlertType.ERROR);
+            return;
+        }
+
+        if(usernameField.getText().length() < 3){
+            showAlert("Error", "Username length not long enough", "Username has to be longer than 3 letters.", AlertType.ERROR);
+            return;
+        }
+
+        if(!passwordCheck(passwordField1.getText())){
+            showAlert("Error","Password too weak", "Please use a letter, number and a special symbol in your password with the length of 8 characters or more.",AlertType.ERROR);
             return;
         }
 
@@ -60,6 +130,7 @@ public class CreateProfileControler {
             usr = usernameField.getText();
 
             stmnt = "INSERT INTO mat_users (id, username, password) VALUES ("+usrID+", '"+usr+"', '"+geslo+"')";
+            assert connection != null;
             statement = connection.createStatement();
 
             connection.setAutoCommit(false);
@@ -69,11 +140,12 @@ public class CreateProfileControler {
             connection.commit();
 
         } catch (Exception e){
-            showAlert("Error","Database Error", "There was an unexpected databse error",AlertType.ERROR);
-            e.printStackTrace();
+            showAlert("Error","Database Error", "There was an unexpected database error",AlertType.ERROR);
+
 
         } finally {
             try{
+                assert statement != null;
                 statement.close();
                 connection.close();
             } catch (Exception e){
@@ -82,37 +154,7 @@ public class CreateProfileControler {
             showAlert("Success","Success","Successfully created a profile",AlertType.CONFIRMATION);
             clearFields();
         }
-        /* nov thread beta
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                try (Connection connection = OracleConnection.getConnection()) {
-                    int idUsr = getID();
-                    String sql = "INSERT INTO mat_users (id, username, password) VALUES ("+getID()+","+usernameField.getText()+","+passwordField1.getText()+");";
-                    System.out.println(sql);
 
-                    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-                        pstmt.setInt(1, idUsr);
-                        pstmt.setString(2, usernameField.getText());
-                        pstmt.setString(3, StaticVars.getMd5(passwordField1.getText()));
-                        pstmt.executeUpdate();
-                    }
-                } catch (SQLException e) {
-                    throw new RuntimeException("Database error: " + e.getMessage(), e);
-                }
-                return null;
-            }
-        };
-
-
-        task.setOnFailed(e -> Platform.runLater(() ->
-                showAlert("Error", "Database Error", "Failed to create profile.", AlertType.ERROR)
-        ));
-
-        //dejansko zacne
-        new Thread(task).start();
-
-         */
     }
 
     private void showAlert(String title, String header, String content, AlertType type) {
@@ -121,6 +163,24 @@ public class CreateProfileControler {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private boolean passwordCheck(String pass){
+        boolean letr = false,numbr = false,othr = false;
+        if(pass.length() < 8)
+            return false;
+        for (int i = 0; i < pass.length(); i++) {
+            char tmp = pass.charAt(i);
+            if(tmp >= 'a' && tmp <= 'z'){
+                letr = true;
+            }
+            else if(tmp >= '0' && tmp <= '9'){
+                numbr = true;
+            } else {
+                othr = true;
+            }
+        }
+        return letr && othr && numbr;
     }
 
     private void clearFields(){
@@ -136,6 +196,7 @@ public class CreateProfileControler {
         Statement stmt = null;
         ResultSet rs = null;
         int id = 0;
+        assert connection != null;
         stmt = connection.createStatement();
         rs = stmt.executeQuery("SELECT max(id) FROM mat_users");
         if (rs.next()) {
