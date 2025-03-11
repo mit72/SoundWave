@@ -25,22 +25,13 @@ public class HelloController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("create-profile.fxml"));
         Parent root = loader.load();
 
-        // Dobi stage
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        Scene scene = stage.getScene();
 
-        // Spremeni controller
+        scene.setRoot(root);
+
         CreateProfileControler controller = loader.getController();
         controller.setStage(stage);
-
-
-        boolean isMaximized = stage.isMaximized();
-        double currentWidth = stage.getWidth();
-        double currentHeight = stage.getHeight();
-        Scene newScene = new Scene(root, currentWidth, currentHeight);
-        stage.setScene(newScene);
-        if (isMaximized) {
-            stage.setMaximized(true);
-        }
 
         stage.show();
     }

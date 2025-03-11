@@ -1,5 +1,7 @@
 package com.example.final13;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 import java.sql.*;
 import java.io.IOException;
@@ -30,17 +34,101 @@ public class CreateProfileControler {
 
 
     @FXML
-    private void createProfile(){
-        String sqlStatment;
+    private void createProfile() {
 
-        String usr = usernameField.getText();
-        System.out.println(usr);
-        sqlStatment = "insert into mat_users values ("+usr;
+        Connection connection = OracleConnection.getConnection();
+        Statement statement = null;
+        int usrID = 0;
+        String geslo = "";
+        String stmnt = "";
+        String usr;
 
 
+        if (usernameField.getText().isEmpty() || passwordField1.getText().isEmpty() || passwordField2.getText().isEmpty()) {
+            showAlert("Error", "Missing information", "Please fill out every field.", AlertType.ERROR);
+            return;
+        }
+
+        if (!passwordField1.getText().equals(passwordField2.getText())) {
+            showAlert("Error", "Passwords do not match", "Please make sure both passwords are the same.", AlertType.ERROR);
+            return;
+        }
+
+        try{
+            geslo = StaticVars.getMd5(passwordField1.getText());
+            usrID = getID();
+            usr = usernameField.getText();
+
+            stmnt = "INSERT INTO mat_users (id, username, password) VALUES ("+usrID+", '"+usr+"', '"+geslo+"')";
+            statement = connection.createStatement();
+
+            connection.setAutoCommit(false);
+
+            statement.execute(stmnt);
+
+            connection.commit();
+
+        } catch (Exception e){
+            showAlert("Error","Database Error", "There was an unexpected databse error",AlertType.ERROR);
+            e.printStackTrace();
+
+        } finally {
+            try{
+                statement.close();
+                connection.close();
+            } catch (Exception e){
+                showAlert("very worng","very worng","very worng",AlertType.WARNING);
+            }
+            showAlert("Success","Success","Successfully created a profile",AlertType.CONFIRMATION);
+            clearFields();
+        }
+        /* nov thread beta
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                try (Connection connection = OracleConnection.getConnection()) {
+                    int idUsr = getID();
+                    String sql = "INSERT INTO mat_users (id, username, password) VALUES ("+getID()+","+usernameField.getText()+","+passwordField1.getText()+");";
+                    System.out.println(sql);
+
+                    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+                        pstmt.setInt(1, idUsr);
+                        pstmt.setString(2, usernameField.getText());
+                        pstmt.setString(3, StaticVars.getMd5(passwordField1.getText()));
+                        pstmt.executeUpdate();
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException("Database error: " + e.getMessage(), e);
+                }
+                return null;
+            }
+        };
 
 
+        task.setOnFailed(e -> Platform.runLater(() ->
+                showAlert("Error", "Database Error", "Failed to create profile.", AlertType.ERROR)
+        ));
+
+        //dejansko zacne
+        new Thread(task).start();
+
+         */
     }
+
+    private void showAlert(String title, String header, String content, AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void clearFields(){
+        usernameField.setText("");
+        passwordField1.setText("");
+        passwordField2.setText("");
+    }
+
 
     //dobi id
     private int getID() throws Exception {
