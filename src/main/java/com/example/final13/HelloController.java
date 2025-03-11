@@ -1,6 +1,9 @@
 package com.example.final13;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
@@ -9,8 +12,41 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.input.MouseEvent;
 
+import java.io.IOException;
+
 public class HelloController {
 
+    @FXML private Button createProfileButton;
+
+    @FXML
+    private void switchToCreateProfile(ActionEvent event) throws IOException {
+
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("create-profile.fxml"));
+        Parent root = loader.load();
+
+        // Dobi stage
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+        // Spremeni controller
+        CreateProfileControler controller = loader.getController();
+        controller.setStage(stage);
+
+
+        boolean isMaximized = stage.isMaximized();
+        double currentWidth = stage.getWidth();
+        double currentHeight = stage.getHeight();
+        Scene newScene = new Scene(root, currentWidth, currentHeight);
+        stage.setScene(newScene);
+        if (isMaximized) {
+            stage.setMaximized(true);
+        }
+
+        stage.show();
+    }
+
+
+    //window resizing and main structure
     private double xOffset = 0;
     private double yOffset = 0;
     private Stage stage;

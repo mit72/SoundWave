@@ -14,12 +14,59 @@
     -fx-min-width: 40px;
     -fx-translate-y: 0;
     -fx-background-insets: 0;
+    -fx-background-radius: 100;
 }
 
 .windowButtons:hover{
     -fx-background-color: #354a66;
 }
 
+.windowButtons:pressed{
+    -fx-background-color: #3E5879;
+}
+
 #exitButton:hover{
     -fx-background-color: red;
+}
+
+#exitButton:pressed{
+    -fx-background-color: #b20000;
+}
+
+.hboxAlign{
+    -fx-spacing: 100px;
+}
+
+.buttonCommon{
+    -fx-background-color: #D8C4B6;
+    -fx-text-fill: #3E5879;
+    -fx-max-height: 40px;
+    -fx-min-width: 40px;
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 100px;
+    /* border */
+    -fx-border-color: #F5EFE7;
+    -fx-border-width: 2px;
+    -fx-border-radius: 100px;
+    -fx-padding: 10px;
+}
+
+.buttonCommon:hover{
+    -fx-background-color: #eed8c8;
+    -fx-cursor: hand;
+}
+
+.buttonCommon:pressed{
+    -fx-background-color: #cbb5a6;
+}
+
+.textField{
+    -fx-background-color: #D8C4B6;
+    -fx-background-radius: 12px;
+    /* border */
+        -fx-border-color: #3E5879;
+        -fx-border-width: 2px;
+        -fx-border-radius: 10px;
+    -fx-pref-width: 300px;
 }
