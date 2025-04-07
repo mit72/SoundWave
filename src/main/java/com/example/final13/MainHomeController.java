@@ -19,6 +19,7 @@ public class MainHomeController {
 
 
     //window resizing and main structure
+    @FXML private Button LogOut;
     @FXML private Button exitButton;
     @FXML private Button minimizeButton;
     @FXML private Button windowedModeButton;

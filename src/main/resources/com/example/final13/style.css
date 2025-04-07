@@ -1,5 +1,5 @@
 .root {
-    -fx-background-color: #213555;
+    -fx-background-color: rgb(39,39,39);
 }
 
 .creamyText{
@@ -7,22 +7,21 @@
 }
 
 .windowButtons{
-    -fx-background-color: #3E5879;
+    -fx-background-color: rgb(39,39,39);
     -fx-background-radius: 0;
     -fx-text-fill: #D8C4B6;
     -fx-max-height: 40px;
     -fx-min-width: 40px;
     -fx-translate-y: 0;
     -fx-background-insets: 0;
-    -fx-background-radius: 100;
 }
 
 .windowButtons:hover{
-    -fx-background-color: #354a66;
+    -fx-background-color: rgb(44,44,44);
 }
 
 .windowButtons:pressed{
-    -fx-background-color: #3E5879;
+    -fx-background-color: rgb(49,49,49);
 }
 
 #exitButton:hover{
@@ -65,8 +64,37 @@
     -fx-background-color: #D8C4B6;
     -fx-background-radius: 12px;
     /* border */
-        -fx-border-color: #3E5879;
+        -fx-border-color: rgb(29,29,29);
         -fx-border-width: 2px;
         -fx-border-radius: 10px;
     -fx-pref-width: 300px;
+}
+
+.bottomMain{
+    -fx-background-color: rgb(39,39,39);
+    -fx-border-color: rgb(32,32,32);
+    -fx-border-width: 1px;
+}
+
+.leftMain{
+    -fx-background-color: rgb(32,32,32);
+    -fx-border-color: rgb(29,29,29);
+    -fx-border-width: 1px;
+}
+
+.leftMainButtons{
+    -fx-background-color: rgb(32,32,32);
+    -fx-border-radius: 5px;
+}
+
+.leftMainButtons:hover{
+    -fx-background-color: rgb(44,44,44);
+    -fx-cursor: cursor;
+    -fx-border-radius: 5px;
+}
+
+.leftMainButtons:pressed{
+    -fx-background-color: rgb(49,49,49);
+    -fx-cursor: cursor;
+    -fx-border-radius: 5px;
 }

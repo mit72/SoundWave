@@ -59,7 +59,7 @@
    <center>
       <VBox fx:id="centerContainer" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="25.0" BorderPane.alignment="CENTER">
          <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" styleClass="creamyText" text="Welcome to SoundWave!" textFill="WHITE">
+            <Label alignment="CENTER" contentDisplay="CENTER" styleClass="creamyText" text="Welcome to SoundWave!" textFill="WHITE" VBox.vgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="28.0" />
                </font>
@@ -67,14 +67,14 @@
                   <Insets bottom="20.0" top="-20.0" />
                </VBox.margin>
             </Label>
-            <Label styleClass="creamyText" text="Let's get started and create a profile!" textFill="WHITE">
+            <Label styleClass="creamyText" text="Let's get started and create a profile!" textFill="WHITE" VBox.vgrow="ALWAYS">
                <font>
                   <Font size="14.0" />
                </font>
                <VBox.margin>
                   <Insets bottom="15.0" />
                </VBox.margin></Label>
-            <Button fx:id="createProfileButton" mnemonicParsing="false" onAction="#switchToCreateProfile" styleClass="buttonCommon" text="Create profile">
+            <Button fx:id="createProfileButton" mnemonicParsing="false" onAction="#switchToCreateProfile" styleClass="buttonCommon" text="Create profile" VBox.vgrow="ALWAYS">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>

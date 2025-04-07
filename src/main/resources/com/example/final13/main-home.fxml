@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.image.Image?>
@@ -15,45 +15,67 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="800.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final13.MainHomeController">
     <top>
-        <HBox fx:id="titleBar" alignment="TOP_RIGHT" prefHeight="30.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+        <HBox fx:id="titleBar" prefHeight="30.0" prefWidth="800.0" styleClass="bottomMain" BorderPane.alignment="CENTER">
             <children>
-                <AnchorPane fx:id="windowButtonsAnchor" prefHeight="38.0" prefWidth="214.0">
-                    <children>
-                        <Button fx:id="minimizeButton" layoutX="96.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#minimizeWindow" prefHeight="38.0" prefWidth="40.0" styleClass="windowButtons" stylesheets="@style.css" textAlignment="CENTER">
-                            <font>
-                                <Font size="17.0" />
-                            </font>
-                            <graphic>
-                                <ImageView fitHeight="32.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@img/window-minimize.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic></Button>
-                        <Button fx:id="windowedModeButton" layoutX="136.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#toggleMaximize" prefHeight="38.0" prefWidth="40.0" styleClass="windowButtons" textAlignment="CENTER">
-                            <font>
-                                <Font size="17.0" />
-                            </font>
-                            <graphic>
-                                <ImageView fitHeight="32.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@img/square.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic></Button>
-                        <Button fx:id="exitButton" layoutX="176.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#closeWindow" prefHeight="38.0" prefWidth="40.0" styleClass="windowButtons" textAlignment="CENTER">
-                            <font>
-                                <Font size="17.0" />
-                            </font>
-                            <graphic>
-                                <ImageView fitHeight="32.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@img/cross.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic></Button>
-                    </children>
-                </AnchorPane>
+            <HBox maxWidth="Infinity" prefHeight="38.0" prefWidth="30062.0">
+               <children>
+                  <Button fx:id="LogOut" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="38.0" prefWidth="40.0" styleClass="windowButtons" stylesheets="@style.css" textAlignment="CENTER">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="32.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@img/exit.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+               </children></HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                      <AnchorPane fx:id="windowButtonsAnchor" prefHeight="38.0" prefWidth="214.0">
+                          <children>
+                              <Button fx:id="minimizeButton" layoutX="96.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#minimizeWindow" prefHeight="38.0" prefWidth="40.0" styleClass="windowButtons" stylesheets="@style.css" textAlignment="CENTER">
+                                  <font>
+                                      <Font size="17.0" />
+                                  </font>
+                                  <graphic>
+                                      <ImageView fitHeight="32.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
+                                          <image>
+                                              <Image url="@img/window-minimize.png" />
+                                          </image>
+                                      </ImageView>
+                                  </graphic>
+                        </Button>
+                              <Button fx:id="windowedModeButton" layoutX="136.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#toggleMaximize" prefHeight="38.0" prefWidth="40.0" styleClass="windowButtons" textAlignment="CENTER">
+                                  <font>
+                                      <Font size="17.0" />
+                                  </font>
+                                  <graphic>
+                                      <ImageView fitHeight="32.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
+                                          <image>
+                                              <Image url="@img/square.png" />
+                                          </image>
+                                      </ImageView>
+                                  </graphic>
+                        </Button>
+                              <Button fx:id="exitButton" layoutX="176.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#closeWindow" prefHeight="38.0" prefWidth="40.0" styleClass="windowButtons" textAlignment="CENTER">
+                                  <font>
+                                      <Font size="17.0" />
+                                  </font>
+                                  <graphic>
+                                      <ImageView fitHeight="32.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
+                                          <image>
+                                              <Image url="@img/cross.png" />
+                                          </image>
+                                      </ImageView>
+                                  </graphic>
+                        </Button>
+                          </children>
+                      </AnchorPane>
+               </children>
+            </HBox>
             </children>
         </HBox>
     </top>
@@ -64,51 +86,114 @@
         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
     </center>
    <bottom>
-      <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" styleClass="bottomMain" BorderPane.alignment="CENTER">
          <children>
-            <VBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" prefHeight="98.0" prefWidth="500.0" style="-fx-border-color: green;" HBox.hgrow="ALWAYS">
                <children>
-                  <Label styleClass="creamyText" text="TITLE" />
-                  <Label styleClass="creamyText" text="ARTIST" />
+                  <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@img/cross.png" />
+                     </image>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin></ImageView>
+                  <VBox alignment="CENTER_LEFT" prefHeight="98.0" prefWidth="165.0" HBox.hgrow="SOMETIMES">
+                     <children>
+                        <Label styleClass="creamyText" text="TITLE" />
+                        <HBox prefHeight="23.0" prefWidth="80.0">
+                           <children>
+                              <Label styleClass="creamyText" text="ARTIST + ALBUM" />
+                           </children>
+                        </HBox>
+                     </children>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </VBox>
                </children>
-               <HBox.margin>
-                  <Insets />
-               </HBox.margin>
                <padding>
-                  <Insets left="10.0" />
+                  <Insets left="20.0" />
                </padding>
-            </VBox>
+            </HBox>
             <HBox prefHeight="100.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
                <children>
-                  <VBox prefHeight="200.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
+                  <VBox maxWidth="Infinity" prefHeight="200.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="500.0" VBox.vgrow="ALWAYS">
+                        <HBox alignment="CENTER" prefHeight="98.0" prefWidth="264.0" style="-fx-border-color: blue;">
                            <children>
-                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" text="random" />
-                              <Button mnemonicParsing="false" text="prev" />
-                              <Button mnemonicParsing="false" text="Play/pause" />
-                              <Button mnemonicParsing="false" text="nxt" />
-                              <Button mnemonicParsing="false" text="repeat" />
+                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" text="1" />
+                              <Button mnemonicParsing="false" text="2" />
+                              <Button mnemonicParsing="false" text="3" />
+                              <Button mnemonicParsing="false" text="4" />
+                              <Button mnemonicParsing="false" text="5" />
                            </children>
                         </HBox>
                      </children>
                   </VBox>
                </children>
             </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_RIGHT" prefHeight="98.0" prefWidth="500.0" style="-fx-border-color: red;" HBox.hgrow="ALWAYS">
                <children>
-                  <ButtonBar prefHeight="40.0" prefWidth="200.0">
-                    <buttons>
-                      <Button mnemonicParsing="false" text="Button" />
-                        <Slider />
-                    </buttons>
-                     <padding>
+                  <Button mnemonicParsing="false" text="Mute">
+                     <HBox.margin>
                         <Insets right="10.0" />
-                     </padding>
-                  </ButtonBar>
+                     </HBox.margin>
+                  </Button>
+                  <Slider />
                </children>
+               <padding>
+                  <Insets right="20.0" />
+               </padding>
             </HBox>
          </children>
       </HBox>
    </bottom>
+   <left>
+      <VBox maxWidth="5000.0" prefHeight="310.0" prefWidth="200.0" styleClass="leftMain" BorderPane.alignment="CENTER">
+         <children>
+            <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Home" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+               <styleClass>
+                  <String fx:value="leftMainButtons" />
+                  <String fx:value="creamyText" />
+               </styleClass>
+            </Button>
+            <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Playlists">
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+               <styleClass>
+                  <String fx:value="leftMainButtons" />
+                  <String fx:value="creamyText" />
+               </styleClass>
+            </Button>
+            <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Library">
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+               <styleClass>
+                  <String fx:value="leftMainButtons" />
+                  <String fx:value="creamyText" />
+               </styleClass>
+            </Button>
+            <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Your music queue">
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+               <styleClass>
+                  <String fx:value="leftMainButtons" />
+                  <String fx:value="creamyText" />
+               </styleClass>
+            </Button>
+         </children>
+         <padding>
+            <Insets left="5.0" right="5.0" top="20.0" />
+         </padding>
+      </VBox>
+   </left>
 </BorderPane>
