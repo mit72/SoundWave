@@ -209,24 +209,21 @@ public class CreateProfileControler {
     //spremeni stage in controler
     @FXML
     private void switchToHelloView(ActionEvent event) throws IOException {
-
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
         Parent root = loader.load();
 
-        // Dobi stage
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-
-        // Spremeni controller
-        HelloController controller = loader.getController();
-        controller.setStage(stage);
-
 
         boolean isMaximized = stage.isMaximized();
         double currentWidth = stage.getWidth();
         double currentHeight = stage.getHeight();
         Scene newScene = new Scene(root, currentWidth, currentHeight);
         stage.setScene(newScene);
+
+
+        HelloController controller = loader.getController();
+        controller.setStage(stage);
+
         if (isMaximized) {
             stage.setMaximized(true);
         }
