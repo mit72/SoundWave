@@ -49,6 +49,30 @@ public class MainHomeController {
     }
 
     @FXML
+    private void switchToSignIn(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("sign-in.fxml"));
+        Parent root = loader.load();
+
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+        boolean isMaximized = stage.isMaximized();
+        double currentWidth = stage.getWidth();
+        double currentHeight = stage.getHeight();
+        Scene newScene = new Scene(root, currentWidth, currentHeight);
+        stage.setScene(newScene);
+
+
+        SignInController controller = loader.getController();
+        controller.setStage(stage);
+
+        if (isMaximized) {
+            stage.setMaximized(true);
+        }
+
+        stage.show();
+    }
+
+    @FXML
     private void handleChooseAudio(ActionEvent event) {
         AudioFileHandler handler = new AudioFileHandler();
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();

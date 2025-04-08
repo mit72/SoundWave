@@ -19,7 +19,7 @@
             <children>
             <HBox maxWidth="Infinity" prefHeight="38.0" prefWidth="30062.0">
                <children>
-                  <Button fx:id="LogOut" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="38.0" prefWidth="40.0" styleClass="windowButtons" stylesheets="@style.css" textAlignment="CENTER">
+                  <Button fx:id="LogOut" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#switchToSignIn" prefHeight="38.0" prefWidth="40.0" styleClass="windowButtons" stylesheets="@style.css" textAlignment="CENTER">
                      <font>
                         <Font size="17.0" />
                      </font>
