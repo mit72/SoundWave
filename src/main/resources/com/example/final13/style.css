@@ -38,7 +38,7 @@
 
 .buttonCommon{
     -fx-background-color: #D8C4B6;
-    -fx-text-fill: #3E5879;
+    -fx-text-fill: rgb(32,32,32);
     -fx-max-height: 40px;
     -fx-min-width: 40px;
     -fx-translate-y: 0;
