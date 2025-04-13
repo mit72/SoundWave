@@ -1,5 +1,5 @@
 
-# SounWave
+# SoundWave
 How to use:
 - Need Java 21 or later
 -  Go to out/artifacts download the latest jar file 
