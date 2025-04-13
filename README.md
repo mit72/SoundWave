@@ -1,4 +1,9 @@
 
+# SounWave
+How to use:
+- Need Java 21 or later
+-  Go to out/artifacts download the latest jar file 
+
 # Change log a0.3.0
 
 - Fixed jar not launching
