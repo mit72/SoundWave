@@ -86,7 +86,7 @@
         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <Label styleClass="creamyText" text="Start by adding your first song" />
-            <Button mnemonicParsing="false" onAction="#handleChooseAudio" text="Open File" />
+            <Button mnemonicParsing="false" onAction="#handleFileSelect" text="Open File" />
          </children></VBox>
     </center>
    <bottom>
@@ -94,7 +94,7 @@
          <children>
             <HBox alignment="CENTER_LEFT" prefHeight="98.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
                <children>
-                  <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="albumArtImageView" fitHeight="72.0" fitWidth="72.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@img/cross.png" />
                      </image>
@@ -103,10 +103,22 @@
                      </HBox.margin></ImageView>
                   <VBox alignment="CENTER_LEFT" prefHeight="98.0" prefWidth="165.0" HBox.hgrow="SOMETIMES">
                      <children>
-                        <Label styleClass="creamyText" text="TITLE" />
+                        <Label fx:id="titleLabel" prefHeight="17.0" prefWidth="154.0" styleClass="creamyText" text="Unknown song" VBox.vgrow="ALWAYS">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font></Label>
                         <HBox prefHeight="23.0" prefWidth="80.0">
                            <children>
-                              <Label styleClass="creamyText" text="ARTIST + ALBUM" />
+                              <Label fx:id="artistLabel" prefHeight="17.0" styleClass="creamyText" text="Unknown artist" HBox.hgrow="ALWAYS" />
+                              <Label styleClass="creamyText" text="·">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets left="3.0" right="3.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="albumLabel" prefHeight="17.0" styleClass="creamyText" text="Unknown album" HBox.hgrow="SOMETIMES" />
                            </children>
                         </HBox>
                      </children>
@@ -144,7 +156,14 @@
                            <children>
                               <Button alignment="CENTER_RIGHT" mnemonicParsing="false" text="1" />
                               <Button mnemonicParsing="false" text="2" />
-                              <Button mnemonicParsing="false" onAction="#handlePlayPause" text="3" />
+                              <Button fx:id="playPauseButton" maxWidth="44.0" mnemonicParsing="false" onAction="#togglePlayPause" prefHeight="44.0" prefWidth="44.0" styleClass="playPauseButton">
+                                 <graphic>
+                                    <ImageView fx:id="playPauseImage" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@img/play.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic></Button>
                               <Button mnemonicParsing="false" text="4" />
                               <Button mnemonicParsing="false" text="5" />
                            </children>
@@ -177,7 +196,7 @@
          <children>
             <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Home" VBox.vgrow="ALWAYS">
                <VBox.margin>
-                  <Insets bottom="20.0" />
+                  <Insets bottom="10.0" />
                </VBox.margin>
                <styleClass>
                   <String fx:value="leftMainButtons" />
@@ -186,7 +205,7 @@
             </Button>
             <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Playlists">
                <VBox.margin>
-                  <Insets bottom="20.0" />
+                  <Insets bottom="10.0" />
                </VBox.margin>
                <styleClass>
                   <String fx:value="leftMainButtons" />
@@ -195,7 +214,7 @@
             </Button>
             <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Library">
                <VBox.margin>
-                  <Insets bottom="20.0" />
+                  <Insets bottom="10.0" />
                </VBox.margin>
                <styleClass>
                   <String fx:value="leftMainButtons" />
@@ -204,12 +223,21 @@
             </Button>
             <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Your music queue">
                <VBox.margin>
-                  <Insets bottom="20.0" />
+                  <Insets bottom="10.0" />
                </VBox.margin>
                <styleClass>
                   <String fx:value="leftMainButtons" />
                   <String fx:value="creamyText" />
                </styleClass>
+            </Button>
+            <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Charts">
+               <styleClass>
+                  <String fx:value="leftMainButtons" />
+                  <String fx:value="creamyText" />
+               </styleClass>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
             </Button>
             <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="900.0" text="Profile">
                <styleClass>
