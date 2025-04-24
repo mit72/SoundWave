@@ -18,9 +18,9 @@ public class HelloApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
         BorderPane root = fxmlLoader.load();
-        Scene scene = new Scene(root, 800, 450);
-        stage.setMinWidth(800);
-        stage.setMinHeight(450);
+        Scene scene = new Scene(root, 900, 500);
+        stage.setMinWidth(900);
+        stage.setMinHeight(500);
 
         stage.setScene(scene);
         stage.setTitle("Music Player");
