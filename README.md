@@ -1,7 +1,14 @@
-#Change log
-a0.2.1
-- sql fix
-- changed main class to HelloApplication
-- sign out button (functions only as a back button for now)
-- fixed cursor not changing from arrow to pointer when maximizing window while the mouse is the arrow
-- better look on all scenes
+
+# SoundWave
+How to use:
+- Need Java 21 or later
+-  Go to out/artifacts download the latest jar file 
+
+# Change log a0.3.0
+
+- Fixed jar not launching
+- Styled and made play/pause button functional
+- Displayed track info (artist name, album name, track name, track cover)
+- Fixed some general bugs
+
+
