@@ -94,7 +94,7 @@
          <children>
             <HBox alignment="CENTER_LEFT" prefHeight="98.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
                <children>
-                  <ImageView fx:id="albumArtImageView" fitHeight="72.0" fitWidth="72.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="albumArtImageView" fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@img/cross.png" />
                      </image>
@@ -103,7 +103,7 @@
                      </HBox.margin></ImageView>
                   <VBox alignment="CENTER_LEFT" prefHeight="98.0" prefWidth="165.0" HBox.hgrow="SOMETIMES">
                      <children>
-                        <Label fx:id="titleLabel" prefHeight="17.0" prefWidth="154.0" styleClass="creamyText" text="Unknown song" VBox.vgrow="ALWAYS">
+                        <Label fx:id="titleLabel" prefHeight="17.0" prefWidth="1286.0" styleClass="creamyText" text="Unknown song" VBox.vgrow="ALWAYS">
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font></Label>
@@ -131,7 +131,7 @@
                   </VBox>
                </children>
                <padding>
-                  <Insets left="20.0" />
+                  <Insets left="10.0" />
                </padding>
             </HBox>
             <HBox prefHeight="100.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
@@ -141,7 +141,7 @@
                         <HBox alignment="BOTTOM_CENTER" prefHeight="80.0" prefWidth="266.0">
                            <children>
                               <Label styleClass="creamyText" text="00:00" />
-                              <Slider HBox.hgrow="ALWAYS">
+                              <Slider fx:id="timeSlider" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
@@ -177,12 +177,12 @@
             </HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="98.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
                <children>
-                  <Button mnemonicParsing="false" text="Mute">
+                  <Button fx:id="muteButton" mnemonicParsing="false" onAction="#toggleMute" text="Mute">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                   </Button>
-                  <Slider />
+                  <Slider fx:id="audioSlider" max="1.0" value="0.5" />
                </children>
                <padding>
                   <Insets right="20.0" />
@@ -247,7 +247,7 @@
             </Button>
          </children>
          <padding>
-            <Insets left="5.0" right="5.0" top="20.0" />
+            <Insets left="5.0" right="5.0" top="10.0" />
          </padding>
       </VBox>
    </left>
