@@ -20,6 +20,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,6 @@ public class MainHomeController {
     @FXML private Button playPauseButton;
     @FXML private ImageView playPauseImage;
 
-    // Optional: connect to your UI elements for metadata display
     @FXML private ImageView albumArtImageView;
     @FXML private Label titleLabel;
     @FXML private Label artistLabel;
@@ -51,15 +51,22 @@ public class MainHomeController {
     @FXML private Slider timeSlider;
     @FXML private Slider audioSlider;
     @FXML private Button muteButton;
+    @FXML private ImageView muteImage;
+    @FXML private Label currentTime;
+    @FXML private Label fullTime;
 
     private Stage stage;
     private final Border border = new Border();
     private final Image playImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/play.png")).toExternalForm());
     private final Image pauseImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/pause.png")).toExternalForm());
+    private final Image muteImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/volume-mute.png")).toExternalForm());
+    private final Image unmuteImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/volume-down.png")).toExternalForm());
+    private final Image volupImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/volume-up.png")).toExternalForm());
     private boolean isMuted = false;
     private double currentSliderValue = 0.5;
+    private boolean isSeeking = false;
 
-    // ⭐ NEW: Select and play audio file
+
     @FXML
     private void handleFileSelect(ActionEvent event) {
         currentSliderValue = audioSlider.getValue();
@@ -77,30 +84,81 @@ public class MainHomeController {
             playPauseImage.setImage(pauseImg);
             player.setVolume(currentSliderValue);
 
-            audioSlider.setValue(currentSliderValue);  // Set the initial slider value
+            // Volume control via audioSlider
+            audioSlider.setValue(currentSliderValue);
             audioSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
                 if (!isMuted) {
                     player.setVolume(newValue.doubleValue());
                 }
-
+                if (audioSlider.getValue() > 0 && audioSlider.getValue() <= 0.5) {
+                    isMuted = false;
+                    muteImage.setImage(unmuteImg);
+                } else if (audioSlider.getValue() == 0) {
+                    isMuted = true;
+                    muteImage.setImage(muteImg);
+                } else if (audioSlider.getValue() > 0.5) {
+                    isMuted = false;
+                    muteImage.setImage(volupImg);
+                }
             });
 
             Media media = MusicPlayerManager.getCurrentMedia();
             if (media != null) {
-                // update UI with fallbacks immediately
-                updateNowPlayingFallbacks(media);
+                player.setOnReady(() -> {
+                    updateNowPlayingUI();
 
-                // Listen for metadata changes
+                    // Set up the full time and current time
+                    fullTime.setText(formatTime(player.getTotalDuration()));
+                    currentTime.setText(formatTime(player.getCurrentTime()));
+
+                    // Set slider max based on total duration
+                    timeSlider.setMax(player.getTotalDuration().toSeconds());
+                });
+
+                // Listen for current time updates and update the slider ONLY if NOT being dragged
+                player.currentTimeProperty().addListener((observable, oldTime, newTime) -> {
+                    if (!timeSlider.isValueChanging()) { // Only update slider if not dragging
+                        currentTime.setText(formatTime(newTime));
+                        timeSlider.setValue(newTime.toSeconds());
+                    }
+                });
+
+                // Prevent slider updates during dragging
+                timeSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+                    if (isChanging) {
+                        // While dragging, update the current time label based on the slider position
+                        javafx.util.Duration draggedTime = javafx.util.Duration.seconds(timeSlider.getValue());
+                        currentTime.setText(formatTime(draggedTime));
+                    } else {
+                        // After dragging, seek to the new time
+                        player.seek(javafx.util.Duration.seconds(timeSlider.getValue()));
+                    }
+                });
+
+                // Live update currentTime label during dragging
+                timeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                    if (timeSlider.isValueChanging()) {
+                        javafx.util.Duration draggedTime = javafx.util.Duration.seconds(newVal.doubleValue());
+                        currentTime.setText(formatTime(draggedTime));
+                    }
+                });
+
+                // Handle slider click event
+                timeSlider.setOnMouseReleased(event2 -> {
+                    player.seek(javafx.util.Duration.seconds(timeSlider.getValue()));
+                    javafx.util.Duration clickedTime = javafx.util.Duration.seconds(timeSlider.getValue());
+                    currentTime.setText(formatTime(clickedTime));
+                });
+
+                // Listen for metadata updates
                 media.getMetadata().addListener((MapChangeListener<String, Object>) change -> {
                     if (change.wasAdded()) {
                         updateNowPlayingUI();
                     }
                 });
 
-                // Try again once it's "ready" in case metadata was delayed
-                player.setOnReady(this::updateNowPlayingUI);
-
-                player.setOnEndOfMedia( () -> {
+                // Handle end of media
+                player.setOnEndOfMedia(() -> {
                     playPauseImage.setImage(playImg);
                 });
             }
@@ -109,9 +167,19 @@ public class MainHomeController {
 
 
 
+
+
+    private String formatTime(Duration duration) {
+        int minutes = (int) duration.toMinutes();
+        int seconds = (int) (duration.toSeconds() % 60);
+        return String.format("%02d:%02d", minutes, seconds);
+    }
+
     @FXML
     private void toggleMute() {
         MediaPlayer mediaPlayer = MusicPlayerManager.getMediaPlayer();
+        if(!isMuted)
+            currentSliderValue = audioSlider.getValue();
         if (mediaPlayer == null) {
             return;  // No media player loaded
         }
@@ -122,12 +190,17 @@ public class MainHomeController {
             audioSlider.setValue(0);
         } else {
             audioSlider.setValue(currentSliderValue);
-            mediaPlayer.setVolume(audioSlider.getValue());  // Restore the volume to the slider value
+            mediaPlayer.setVolume(audioSlider.getValue());
         }
 
-        // Optionally, change the mute button's image or text to indicate mute/unmute state
         if (muteButton != null) {
-            muteButton.setText(isMuted ? "Unmute" : "Mute");  // Example of text update
+            if(!isMuted && audioSlider.getValue() > 0 && audioSlider.getValue() <=0.5) {
+                muteImage.setImage(unmuteImg);
+            } else if (!isMuted && audioSlider.getValue() > 0.5) {
+                muteImage.setImage(volupImg);
+            } else if (isMuted && audioSlider.getValue() == 0) {
+                muteImage.setImage(muteImg);
+            }
         }
     }
 
@@ -143,7 +216,7 @@ public class MainHomeController {
 
         String fallbackArtist = "Unknown Artist";
         String fallbackAlbum = "Unknown Album";
-        Image fallbackImage = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/cross.png")).toExternalForm());
+        Image fallbackImage = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/music-note.png")).toExternalForm());
 
         if (titleLabel != null) titleLabel.setText(fallbackTitle);
         if (artistLabel != null) artistLabel.setText(fallbackArtist);

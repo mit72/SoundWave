@@ -86,7 +86,7 @@
         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <Label styleClass="creamyText" text="Start by adding your first song" />
-            <Button mnemonicParsing="false" onAction="#handleFileSelect" text="Open File" />
+            <Button fx:id="fileSelect" mnemonicParsing="false" onAction="#handleFileSelect" text="Open File" />
          </children></VBox>
     </center>
    <bottom>
@@ -96,7 +96,7 @@
                <children>
                   <ImageView fx:id="albumArtImageView" fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@img/cross.png" />
+                        <Image url="@img/music-note.png" />
                      </image>
                      <HBox.margin>
                         <Insets />
@@ -140,7 +140,7 @@
                      <children>
                         <HBox alignment="BOTTOM_CENTER" prefHeight="80.0" prefWidth="266.0">
                            <children>
-                              <Label styleClass="creamyText" text="00:00" />
+                              <Label fx:id="currentTime" styleClass="creamyText" text="00:00" />
                               <Slider fx:id="timeSlider" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets />
@@ -149,7 +149,7 @@
                                     <Insets left="10.0" right="10.0" />
                                  </padding>
                               </Slider>
-                              <Label styleClass="creamyText" text="00:00" />
+                              <Label fx:id="fullTime" styleClass="creamyText" text="00:00" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="107.0" prefWidth="266.0">
@@ -158,7 +158,7 @@
                               <Button mnemonicParsing="false" text="2" />
                               <Button fx:id="playPauseButton" maxWidth="44.0" mnemonicParsing="false" onAction="#togglePlayPause" prefHeight="44.0" prefWidth="44.0" styleClass="playPauseButton">
                                  <graphic>
-                                    <ImageView fx:id="playPauseImage" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                    <ImageView fx:id="playPauseImage" fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
                                           <Image url="@img/play.png" />
                                        </image>
@@ -177,10 +177,17 @@
             </HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="98.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
                <children>
-                  <Button fx:id="muteButton" mnemonicParsing="false" onAction="#toggleMute" text="Mute">
+                  <Button fx:id="muteButton" mnemonicParsing="false" onAction="#toggleMute" styleClass="controlButtons">
                      <HBox.margin>
-                        <Insets right="10.0" />
+                        <Insets bottom="-3.0" left="-3.0" right="-3.0" top="-3.0" />
                      </HBox.margin>
+                     <graphic>
+                        <ImageView fx:id="muteImage" fitHeight="26.0" fitWidth="23.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@img/volume-down.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
                   </Button>
                   <Slider fx:id="audioSlider" max="1.0" value="0.5" />
                </children>
