@@ -101,7 +101,24 @@
 }
 
 .playPauseButton{
-        -fx-background-color: linear-gradient(to top right, rgb(46,189,196), rgb(48,29,111));
+    -fx-background-color: none;
+    -fx-background-radius: 100;
+    -fx-text-fill: white;
+    -fx-border-radius: 100;
+    -fx-border-color: linear-gradient(to top right, rgb(46,189,196), rgb(48,29,111));
+    -fx-border-width: 3;
+    -fx-padding: 5 10 5 10;
+    -fx-cursor: hand;
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+}
+
+.playPauseButton:hover{
+    -fx-cursor: hand;
+}
+
+.controlButtons{
+        -fx-background-color: none;
         -fx-background-radius: 100;
         -fx-border-radius: 10;
         -fx-text-fill: white;
@@ -109,8 +126,4 @@
         -fx-cursor: hand;
         -fx-translate-y: 0;
         -fx-background-insets: 0;
-}
-
-.playPauseButton:hover{
-    -fx-cursor: hand;
 }
