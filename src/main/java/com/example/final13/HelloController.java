@@ -39,7 +39,7 @@ public class HelloController {
 
         scene.setRoot(root);
 
-        CreateProfileControler controller = loader.getController();
+        CreateProfileController controller = loader.getController();
         controller.setStage(stage); // This controller should also use Border
 
         stage.show();
