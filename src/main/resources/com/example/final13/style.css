@@ -86,18 +86,45 @@
 .leftMainButtons{
     -fx-background-color: rgb(32,32,32);
     -fx-border-radius: 5px;
+    -fx-border-color: #D8C4B6;
 }
 
 .leftMainButtons:hover{
     -fx-background-color: rgb(44,44,44);
     -fx-cursor: cursor;
     -fx-border-radius: 5px;
+    -fx-border-color: #D8C4B6;
 }
 
 .leftMainButtons:pressed{
     -fx-background-color: rgb(49,49,49);
     -fx-cursor: cursor;
     -fx-border-radius: 5px;
+    -fx-border-color: #D8C4B6;
+}
+
+.selectedText{
+    -fx-text-fill: #89CFF0;
+}
+
+.leftMainButtonSelected{
+    -fx-background-color: rgb(32,32,32);
+    -fx-border-radius: 5px;
+    -fx-border-color: #89CFF0;
+}
+
+.leftMainButtonSelected:hover{
+    -fx-background-color: rgb(44,44,44);
+    -fx-cursor: cursor;
+    -fx-border-radius: 5px;
+    -fx-border-color: #89CFF0;
+}
+
+.leftMainButtonSelected:pressed{
+    -fx-background-color: rgb(49,49,49);
+    -fx-cursor: cursor;
+    -fx-border-radius: 5px;
+    -fx-border-color: #89CFF0;
 }
 
 .playPauseButton{
