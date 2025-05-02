@@ -28,8 +28,7 @@ public class CreateProfileController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField1;
     @FXML private PasswordField passwordField2;
-    private boolean profileCreated = false;
-/*
+    /*
     //run separate thread if needed in future
     @FXML
     private void createProfile() {
@@ -122,6 +121,7 @@ public class CreateProfileController {
             return;
         }
 
+        boolean profileCreated = false;
         try{
             geslo = StaticVars.getMd5(passwordField1.getText());
             usrID = getID();
