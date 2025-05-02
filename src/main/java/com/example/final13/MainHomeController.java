@@ -22,13 +22,14 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
+import java.util.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 public class MainHomeController {
 
@@ -64,7 +65,11 @@ public class MainHomeController {
     private final Image volupImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/volume-up.png")).toExternalForm());
     private boolean isMuted = false;
     private double currentSliderValue = 0.5;
-    private boolean isSeeking = false;
+    private List<File> playlist = new ArrayList<>();
+    private int currentTrackIndex = -1; // -1 means no track selected
+    private File currentlyPlayingFile;
+    private double currentVolume = 0.5;
+
 
 
     @FXML
@@ -77,94 +82,116 @@ public class MainHomeController {
                 new FileChooser.ExtensionFilter("Audio Files", "*.mp3", "*.wav", "*.aac")
         );
 
-        File selectedFile = fileChooser.showOpenDialog(stage);
-        if (selectedFile != null) {
-            MusicPlayerManager.playFile(selectedFile);
-            MediaPlayer player = MusicPlayerManager.getMediaPlayer();
-            playPauseImage.setImage(pauseImg);
-            player.setVolume(currentSliderValue);
+        // Allow multiple file selection
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(stage);
+        if (selectedFiles != null && !selectedFiles.isEmpty()) {
+            // Add all selected files to the playlist
+            playlist.addAll(selectedFiles);
 
-            // Volume control via audioSlider
-            audioSlider.setValue(currentSliderValue);
-            audioSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-                if (!isMuted) {
-                    player.setVolume(newValue.doubleValue());
-                }
-                if (audioSlider.getValue() > 0 && audioSlider.getValue() <= 0.5) {
-                    isMuted = false;
-                    muteImage.setImage(unmuteImg);
-                } else if (audioSlider.getValue() == 0) {
-                    isMuted = true;
-                    muteImage.setImage(muteImg);
-                } else if (audioSlider.getValue() > 0.5) {
-                    isMuted = false;
-                    muteImage.setImage(volupImg);
-                }
-            });
-
-            Media media = MusicPlayerManager.getCurrentMedia();
-            if (media != null) {
-                player.setOnReady(() -> {
-                    updateNowPlayingUI();
-
-                    // Set up the full time and current time
-                    fullTime.setText(formatTime(player.getTotalDuration()));
-                    currentTime.setText(formatTime(player.getCurrentTime()));
-
-                    // Set slider max based on total duration
-                    timeSlider.setMax(player.getTotalDuration().toSeconds());
-                });
-
-                // Listen for current time updates and update the slider ONLY if NOT being dragged
-                player.currentTimeProperty().addListener((observable, oldTime, newTime) -> {
-                    if (!timeSlider.isValueChanging()) { // Only update slider if not dragging
-                        currentTime.setText(formatTime(newTime));
-                        timeSlider.setValue(newTime.toSeconds());
-                    }
-                });
-
-                // Prevent slider updates during dragging
-                timeSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
-                    if (isChanging) {
-                        // While dragging, update the current time label based on the slider position
-                        javafx.util.Duration draggedTime = javafx.util.Duration.seconds(timeSlider.getValue());
-                        currentTime.setText(formatTime(draggedTime));
-                    } else {
-                        // After dragging, seek to the new time
-                        player.seek(javafx.util.Duration.seconds(timeSlider.getValue()));
-                    }
-                });
-
-                // Live update currentTime label during dragging
-                timeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-                    if (timeSlider.isValueChanging()) {
-                        javafx.util.Duration draggedTime = javafx.util.Duration.seconds(newVal.doubleValue());
-                        currentTime.setText(formatTime(draggedTime));
-                    }
-                });
-
-                // Handle slider click event
-                timeSlider.setOnMouseReleased(event2 -> {
-                    player.seek(javafx.util.Duration.seconds(timeSlider.getValue()));
-                    javafx.util.Duration clickedTime = javafx.util.Duration.seconds(timeSlider.getValue());
-                    currentTime.setText(formatTime(clickedTime));
-                });
-
-                // Listen for metadata updates
-                media.getMetadata().addListener((MapChangeListener<String, Object>) change -> {
-                    if (change.wasAdded()) {
-                        updateNowPlayingUI();
-                    }
-                });
-
-                // Handle end of media
-                player.setOnEndOfMedia(() -> {
-                    playPauseImage.setImage(playImg);
-                });
+            // If nothing is currently playing, start playing the first file
+            if (currentTrackIndex == -1) {
+                currentTrackIndex = 0;
+                playCurrentTrack();
             }
         }
     }
 
+    private void playCurrentTrack() {
+        if (currentTrackIndex >= 0 && currentTrackIndex < playlist.size()) {
+            File fileToPlay = playlist.get(currentTrackIndex);
+            playFile(fileToPlay);
+        }
+    }
+
+    private void playFile(File file) {
+        currentlyPlayingFile = file;
+        MusicPlayerManager.playFile(file);
+        setupMediaPlayer();
+
+        //audio
+        MediaPlayer player = MusicPlayerManager.getMediaPlayer();
+        if (player != null) {
+            player.setVolume(currentVolume);
+            audioSlider.setValue(currentVolume); // Update slider position
+        }
+    }
+
+
+
+    private void setupMediaPlayer() {
+        MediaPlayer player = MusicPlayerManager.getMediaPlayer();
+        playPauseImage.setImage(pauseImg);
+
+        player.setVolume(currentVolume);
+        audioSlider.setValue(currentVolume);
+
+        audioSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            currentVolume = newValue.doubleValue();
+            if (!isMuted) {
+                player.setVolume(currentVolume);
+            }
+            if (audioSlider.getValue() > 0 && audioSlider.getValue() <= 0.5) {
+                isMuted = false;
+                muteImage.setImage(unmuteImg);
+            } else if (audioSlider.getValue() == 0) {
+                isMuted = true;
+                muteImage.setImage(muteImg);
+            } else if (audioSlider.getValue() > 0.5) {
+                isMuted = false;
+                muteImage.setImage(volupImg);
+            }
+        });
+
+        Media media = MusicPlayerManager.getCurrentMedia();
+        if (media != null) {
+            player.setOnReady(() -> {
+                updateNowPlayingUI();
+                fullTime.setText(formatTime(player.getTotalDuration()));
+                currentTime.setText(formatTime(player.getCurrentTime()));
+                timeSlider.setMax(player.getTotalDuration().toSeconds());
+            });
+
+            player.currentTimeProperty().addListener((observable, oldTime, newTime) -> {
+                if (!timeSlider.isValueChanging()) {
+                    currentTime.setText(formatTime(newTime));
+                    timeSlider.setValue(newTime.toSeconds());
+                }
+            });
+
+            timeSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+                if (isChanging) {
+                    Duration draggedTime = Duration.seconds(timeSlider.getValue());
+                    currentTime.setText(formatTime(draggedTime));
+                } else {
+                    player.seek(Duration.seconds(timeSlider.getValue()));
+                }
+            });
+
+            timeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (timeSlider.isValueChanging()) {
+                    Duration draggedTime = Duration.seconds(newVal.doubleValue());
+                    currentTime.setText(formatTime(draggedTime));
+                }
+            });
+
+            timeSlider.setOnMouseReleased(event2 -> {
+                player.seek(Duration.seconds(timeSlider.getValue()));
+                Duration clickedTime = Duration.seconds(timeSlider.getValue());
+                currentTime.setText(formatTime(clickedTime));
+            });
+
+            media.getMetadata().addListener((MapChangeListener<String, Object>) change -> {
+                if (change.wasAdded()) {
+                    updateNowPlayingUI();
+                }
+            });
+
+            player.setOnEndOfMedia(() -> {
+                playPauseImage.setImage(playImg);
+                playNext(); // Automatically play next when current finishes
+            });
+        }
+    }
 
 
 
@@ -204,6 +231,37 @@ public class MainHomeController {
         }
     }
 
+    @FXML
+    private void playNext() {
+        if (playlist.isEmpty()) return;
+
+        if (currentTrackIndex < playlist.size() - 1) {
+            currentTrackIndex++;
+            playCurrentTrack();
+        } else {
+            // Optional: loop back to start
+            // currentTrackIndex = 0;
+            // playCurrentTrack();
+            System.out.println("End of playlist reached");
+        }
+    }
+
+    @FXML
+    private void playPrevious() {
+        if (playlist.isEmpty()) return;
+
+        if (currentTrackIndex > 0) {
+            currentTrackIndex--;
+            playCurrentTrack();
+        } else {
+            // Optional: loop to end
+            // currentTrackIndex = playlist.size() - 1;
+            // playCurrentTrack();
+            System.out.println("Beginning of playlist reached");
+        }
+    }
+
+
     private void updateNowPlayingFallbacks(Media media) {
         String fallbackTitle;
         try {
@@ -231,7 +289,15 @@ public class MainHomeController {
         if (media != null) {
             ObservableMap<String, Object> metadata = media.getMetadata();
 
-            // Immediate UI update with current metadata
+            // Set fallback values first
+            String fallbackTitle = getFallbackTitle(media);
+            Image fallbackImage = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/music-note.png")).toExternalForm());
+
+            // Update UI with fallbacks
+            if (titleLabel != null) titleLabel.setText(fallbackTitle);
+            if (albumArtImageView != null) albumArtImageView.setImage(fallbackImage);
+
+            // Then try to update with actual metadata
             updateUIFromMetadata(metadata, media);
 
             // Listen for future metadata changes
@@ -243,40 +309,47 @@ public class MainHomeController {
         }
     }
 
+    private String getFallbackTitle(Media media) {
+        try {
+            String source = media.getSource();
+            String fileName = new File(new URI(source)).getName();
+            return fileName.replaceFirst("[.][^.]+$", "");
+        } catch (Exception e) {
+            return "Unknown Title";
+        }
+    }
+
+
     private void updateUIFromMetadata(ObservableMap<String, Object> metadata, Media media) {
         Object title = metadata.get("title");
         Object artist = metadata.get("artist");
         Object album = metadata.get("album");
         Object image = metadata.get("image");
 
-        if (titleLabel != null) {
-            if (title != null && !title.toString().isBlank()) {
-                titleLabel.setText(title.toString());
-            } else {
-                try {
-                    URI uri = new URI(media.getSource()); // Convert string to URI
-                    Path path = Paths.get(uri); // Convert URI to Path
-                    String fileName = path.getFileName().toString(); // Get filename
-                    fileName = fileName.substring(0, fileName.length()-4);
-                    titleLabel.setText(fileName);
-                } catch (URISyntaxException | IllegalArgumentException e) {
-                    titleLabel.setText("Unknown Title");
-                    e.printStackTrace();
-                }
-            }
+        // Only update if metadata exists
+        if (title != null && !title.toString().isEmpty()) {
+            titleLabel.setText(title.toString());
         }
 
-
-        if (artistLabel != null) {
-            artistLabel.setText(artist != null ? artist.toString() : "Unknown Artist");
+        if (artist != null && !artist.toString().isEmpty()) {
+            artistLabel.setText(artist.toString());
+        } else {
+            artistLabel.setText("Unknown Artist");
         }
 
-        if (albumLabel != null) {
-            albumLabel.setText(album != null ? album.toString() : "Unknown Album");
+        if (album != null && !album.toString().isEmpty()) {
+            albumLabel.setText(album.toString());
+        } else {
+            albumLabel.setText("Unknown Album");
         }
 
-        if (albumArtImageView != null && image instanceof Image) {
+        if (image instanceof Image) {
             albumArtImageView.setImage((Image) image);
+        } else {
+            // Set fallback image if no image in metadata
+            Image fallbackImage = new Image(Objects.requireNonNull(
+                    getClass().getResource("/com/example/final13/img/music-note.png")).toExternalForm());
+            albumArtImageView.setImage(fallbackImage);
         }
     }
 
