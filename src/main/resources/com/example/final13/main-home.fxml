@@ -86,7 +86,7 @@
         <VBox fx:id="centerContainer" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <Label styleClass="creamyText" text="Start by adding your first song" />
-            <Button fx:id="fileSelect" mnemonicParsing="false" onAction="#handleFileSelect" text="Open File" />
+            <Button fx:id="fileSelect" mnemonicParsing="false" onAction="#handleFileSelect" styleClass="buttonCommon" text="Open File" />
          </children>
       </VBox>
     </center>
