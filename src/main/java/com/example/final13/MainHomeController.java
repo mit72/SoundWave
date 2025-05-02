@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -107,7 +108,7 @@ public class MainHomeController {
 
         libraryButton.setOnAction(e -> {
             setActiveButton(libraryButton);
-            loadView("/com/example/final13/library-view.fxml");
+            loadViewLib("/com/example/final13/library-view.fxml");
         });
 
         queueButton.setOnAction(e -> {
@@ -144,6 +145,22 @@ public class MainHomeController {
         } catch (IOException e) {
             e.printStackTrace();
             // Fallback to home view
+            showHomeView();
+            setActiveButton(homeButton);
+        }
+    }
+
+    private void loadViewLib(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));  // <-- Use the parameter
+            ScrollPane view = loader.load();
+            mainBorderPane.setCenter(view);
+
+            view.prefWidthProperty().bind(mainBorderPane.widthProperty());
+            view.prefHeightProperty().bind(mainBorderPane.heightProperty());
+
+        } catch (IOException e) {
+            e.printStackTrace();
             showHomeView();
             setActiveButton(homeButton);
         }

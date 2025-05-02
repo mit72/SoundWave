@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@style.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1">
+<ScrollPane fitToHeight="true" fitToWidth="true" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <content>
-    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0" />
+    
   </content>
+   <content>
+      <VBox prefHeight="743.0" prefWidth="886.0" style="-fx-background-color: rgb(39,39,39);" stylesheets="@style.css">
+         <children>
+            <HBox prefHeight="250.0" prefWidth="886.0">
+               <children>
+                  <VBox minHeight="247.0" minWidth="247.0" prefHeight="247.0" prefWidth="247.0" styleClass="bottomMain" />
+               </children>
+            </HBox>
+            <HBox prefHeight="250.0" prefWidth="886.0" />
+            <HBox prefHeight="250.0" prefWidth="886.0" />
+         </children>
+      </VBox>
+   </content>
 </ScrollPane>
