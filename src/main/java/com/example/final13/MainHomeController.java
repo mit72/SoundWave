@@ -16,6 +16,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -29,9 +30,6 @@ import java.util.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class MainHomeController {
 
@@ -61,6 +59,8 @@ public class MainHomeController {
     @FXML private Button shuffleButton;
     @FXML private ImageView loopImg;
     @FXML private ImageView shuffleImg;
+    @FXML private Button profileButton, chartsButton, queueButton, libraryButton, homeButton;
+    @FXML private BorderPane mainBorderPane;
 
     private Stage stage;
     private final Border border = new Border();
@@ -82,10 +82,115 @@ public class MainHomeController {
     private boolean isLoopEnabled = false;
     private boolean isShuffleEnabled = false;
     private List<File> shuffledPlaylist = new ArrayList<>();
-    private Random random = new Random();
-    private boolean isMetadataLoaded = false;
+    private Parent initialCenterContent;
+    private Parent currentView;
 
+    @FXML
+    public void initialize() {
+        // Store initial center content
+        initialCenterContent = (Parent) mainBorderPane.getCenter();
+        bindSliderFill(timeSlider);
+        bindSliderFill(audioSlider);
+        timeSlider.setDisable(true);
+        // Set button actions
+        setupNavigationButtons();
 
+        // Set home as default selected
+        setActiveButton(homeButton);
+    }
+
+    private void setupNavigationButtons() {
+        homeButton.setOnAction(e -> {
+            setActiveButton(homeButton);
+            showHomeView();
+        });
+
+        libraryButton.setOnAction(e -> {
+            setActiveButton(libraryButton);
+            loadView("/com/example/final13/library-view.fxml");
+        });
+
+        queueButton.setOnAction(e -> {
+            setActiveButton(queueButton);
+            loadView("/com/example/final13/queue-view.fxml");
+        });
+
+        chartsButton.setOnAction(e -> {
+            setActiveButton(chartsButton);
+            loadView("/com/example/final13/chart-view.fxml");
+        });
+
+        profileButton.setOnAction(e -> {
+            setActiveButton(profileButton);
+            loadView("/com/example/final13/profile-view.fxml");
+        });
+    }
+
+    private void loadView(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent view = loader.load();
+
+            // Get controller and initialize if needed
+            Object controller = loader.getController();
+            /*if (controller instanceof LibraryController) {
+                ((LibraryController) controller).initializeWithData(playlist);
+            }*/
+            // Add similar blocks for other controllers
+
+            mainBorderPane.setCenter(view);
+            currentView = view;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Fallback to home view
+            showHomeView();
+            setActiveButton(homeButton);
+        }
+    }
+
+    private void setActiveButton(Button activeButton) {
+        Button[] navButtons = {homeButton, libraryButton, queueButton, chartsButton, profileButton};
+
+        for (Button button : navButtons) {
+            if (button == activeButton) {
+                button.getStyleClass().removeAll("leftMainButton", "creamyText");
+                button.getStyleClass().addAll("leftMainButtonSelected", "selectedText");
+            } else {
+                button.getStyleClass().removeAll("leftMainButtonSelected", "selectedText");
+                button.getStyleClass().addAll("leftMainButton", "creamyText");
+            }
+        }
+    }
+
+    private void showHomeView() {
+        mainBorderPane.setCenter(initialCenterContent);
+        currentView = initialCenterContent;
+    }
+
+    @FXML
+    private void loadLibraryView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final13/library-view.fxml"));
+            Parent libraryView = loader.load();
+            mainBorderPane.setCenter(libraryView);
+
+            // Get controller if needed
+            LibraryController libraryController = loader.getController();
+            // libraryController.setMainController(this);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Optionally revert to initial content on error
+            mainBorderPane.setCenter(initialCenterContent);
+        }
+
+    }
+
+    // Add method to restore original view if needed
+    public void restoreInitialView() {
+        mainBorderPane.setCenter(initialCenterContent);
+    }
 
     @FXML
     private void handleFileSelect(ActionEvent event) {
@@ -165,16 +270,11 @@ public class MainHomeController {
         slider.valueProperty().addListener(listener);
     }
 
-    @FXML
-    public void initialize() {
-        // Bind sliders after UI is initialized
-        bindSliderFill(timeSlider);
-        bindSliderFill(audioSlider);
-    }
-
     private void setupMediaPlayer() {
         MediaPlayer player = MusicPlayerManager.getMediaPlayer();
         playPauseImage.setImage(pauseImg);
+
+        timeSlider.setDisable(false);
 
         player.setVolume(currentVolume);
         audioSlider.setValue(currentVolume);
@@ -507,7 +607,6 @@ public class MainHomeController {
             mediaPlayer = null; // Reset the media player
         }
     }
-
 
     @FXML
     private void switchToSignIn(ActionEvent event) throws IOException {
