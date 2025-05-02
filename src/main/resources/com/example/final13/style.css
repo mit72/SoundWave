@@ -101,12 +101,10 @@
 }
 
 .playPauseButton{
-    -fx-background-color: none;
+    -fx-background-color: #D8C4B6;
     -fx-background-radius: 100;
     -fx-text-fill: white;
-    -fx-border-radius: 100;
-    -fx-border-color: linear-gradient(to top right, rgb(46,189,196), rgb(48,29,111));
-    -fx-border-width: 3;
+
     -fx-padding: 5 10 5 10;
     -fx-cursor: hand;
     -fx-translate-y: 0;
@@ -118,12 +116,44 @@
 }
 
 .controlButtons{
-        -fx-background-color: none;
-        -fx-background-radius: 100;
-        -fx-border-radius: 10;
-        -fx-text-fill: white;
-        -fx-padding: 5 10 5 10;
-        -fx-cursor: hand;
-        -fx-translate-y: 0;
-        -fx-background-insets: 0;
+    -fx-background-color: none;
+    -fx-background-radius: 100;
+    -fx-border-radius: 10;
+    -fx-text-fill: white;
+    -fx-padding: 5 10 5 10;
+    -fx-cursor: hand;
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+}
+
+.custom-slider {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+.custom-slider .track {
+    -fx-background-color: gray;
+    -fx-background-radius: 2px;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-pref-height: 4px;
+}
+
+.custom-slider .filled-track {
+    -fx-background-color: #89CFF0;
+    -fx-background-radius: 2px;
+    -fx-pref-height: 4px;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+.custom-slider .thumb {
+    -fx-background-color: #D8C4B6;
+    -fx-background-radius: 50%;
+    -fx-shape: null;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-effect: null;
+    -fx-pref-width: 16px;
+    -fx-pref-height: 16px;
 }

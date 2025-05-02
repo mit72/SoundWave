@@ -141,7 +141,7 @@
                         <HBox alignment="BOTTOM_CENTER" prefHeight="80.0" prefWidth="266.0">
                            <children>
                               <Label fx:id="currentTime" styleClass="creamyText" text="00:00" />
-                              <Slider fx:id="timeSlider" HBox.hgrow="ALWAYS">
+                              <Slider fx:id="timeSlider" styleClass="custom-slider" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
@@ -154,18 +154,46 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="107.0" prefWidth="266.0">
                            <children>
-                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" text="1" />
-                              <Button mnemonicParsing="false" onAction="#playPrevious" text="2" />
+                              <Button fx:id="shuffleButton" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#toggleShuffle" styleClass="controlButtons">
+                                 <graphic>
+                                    <ImageView fx:id="shuffleImg" fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@img/shuffle.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic></Button>
+                              <Button mnemonicParsing="false" onAction="#playPrevious" styleClass="controlButtons">
+                                 <graphic>
+                                    <ImageView fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@img/step-back.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic></Button>
                               <Button fx:id="playPauseButton" maxWidth="44.0" mnemonicParsing="false" onAction="#togglePlayPause" prefHeight="44.0" prefWidth="44.0" styleClass="playPauseButton">
                                  <graphic>
                                     <ImageView fx:id="playPauseImage" fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@img/play.png" />
+                                          <Image url="@img/playalt.png" />
                                        </image>
                                     </ImageView>
                                  </graphic></Button>
-                              <Button mnemonicParsing="false" onAction="#playNext" text="4" />
-                              <Button mnemonicParsing="false" text="5" />
+                              <Button mnemonicParsing="false" onAction="#playNext" styleClass="controlButtons">
+                                 <graphic>
+                                    <ImageView fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@img/step-forward.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic></Button>
+                              <Button fx:id="loopButton" mnemonicParsing="false" onAction="#toggleLoop" styleClass="controlButtons">
+                                 <graphic>
+                                    <ImageView fx:id="loopImg" fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@img/arrows-repeat.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic></Button>
                            </children>
                            <padding>
                               <Insets bottom="10.0" />
@@ -189,7 +217,7 @@
                         </ImageView>
                      </graphic>
                   </Button>
-                  <Slider fx:id="audioSlider" max="1.0" value="0.5" />
+                  <Slider fx:id="audioSlider" max="1.0" styleClass="custom-slider" value="0.5" />
                </children>
                <padding>
                   <Insets right="20.0" />
@@ -202,15 +230,6 @@
       <VBox maxWidth="5000.0" prefHeight="310.0" prefWidth="200.0" styleClass="leftMain" BorderPane.alignment="CENTER">
          <children>
             <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Home" VBox.vgrow="ALWAYS">
-               <VBox.margin>
-                  <Insets bottom="10.0" />
-               </VBox.margin>
-               <styleClass>
-                  <String fx:value="leftMainButtons" />
-                  <String fx:value="creamyText" />
-               </styleClass>
-            </Button>
-            <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="925.0" text="Playlists">
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
