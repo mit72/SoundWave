@@ -4,14 +4,13 @@ How to use:
 - Need Java 21 or later
 -  Go to out/artifacts download the latest jar file 
 
-# Change log a0.3.1
+# Change log a0.4.0
 
-- Track metadata now updates on track change
-- Added fallback for no metadata on tracks
-- Added functionality for audio slider
-- Added functionality for mute button
-- The play button now changes on track end
-- Now when you change the scene to sign out the music stops playing
-- Minor visual and bug fixes
+- Reworked audio logic
+- You can now import multiple audio files, and they will be put in a queue which can has skip(4) and backwards buttons(2)
+- Visually better buttons
+- Improved audio slider and button (retains value on track change, when clicking on mute button it changes back to latest audio value, added better visuals for mute button)
+- Track slider now works and displays correct values for current and end time
+- Minor tweaks
 
 
