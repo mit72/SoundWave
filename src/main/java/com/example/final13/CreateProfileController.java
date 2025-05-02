@@ -1,6 +1,5 @@
 package com.example.final13;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,7 +12,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
@@ -21,7 +19,7 @@ import java.sql.*;
 import java.io.IOException;
 
 
-public class CreateProfileControler {
+public class CreateProfileController {
 
 
 
@@ -30,7 +28,7 @@ public class CreateProfileControler {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField1;
     @FXML private PasswordField passwordField2;
-
+    private boolean profileCreated = false;
 /*
     //run separate thread if needed in future
     @FXML
@@ -94,7 +92,7 @@ public class CreateProfileControler {
 } */
 
     @FXML
-    private void createProfile() {
+    private void createProfile() throws IOException {
 
         Connection connection = OracleConnection.getConnection();
         Statement statement = null;
@@ -152,9 +150,12 @@ public class CreateProfileControler {
                 showAlert("very wrong","very wrong","very wrong",AlertType.WARNING);
             }
             showAlert("Success","Success","Successfully created a profile",AlertType.CONFIRMATION);
+            profileCreated = true;
             clearFields();
         }
-
+        if (profileCreated){
+            switchToSignIn();
+        }
     }
 
     private void showAlert(String title, String header, String content, AlertType type) {
@@ -204,6 +205,21 @@ public class CreateProfileControler {
         }
         connection.close();
         return id + 1;
+    }
+
+    private void switchToSignIn() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("sign-in.fxml"));
+        Parent root = loader.load();
+
+        Stage stage = (Stage) CreateButton.getScene().getWindow();
+        Scene scene = stage.getScene();
+
+        scene.setRoot(root);
+
+        SignInController controller = loader.getController();
+        controller.setStage(stage);
+
+        stage.show();
     }
 
     //spremeni stage in controler
