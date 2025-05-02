@@ -1,5 +1,7 @@
 package com.example.final13;
 
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
@@ -55,20 +57,33 @@ public class MainHomeController {
     @FXML private ImageView muteImage;
     @FXML private Label currentTime;
     @FXML private Label fullTime;
+    @FXML private Button loopButton;
+    @FXML private Button shuffleButton;
+    @FXML private ImageView loopImg;
+    @FXML private ImageView shuffleImg;
 
     private Stage stage;
     private final Border border = new Border();
-    private final Image playImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/play.png")).toExternalForm());
+    private final Image playImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/playalt.png")).toExternalForm());
     private final Image pauseImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/pause.png")).toExternalForm());
     private final Image muteImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/volume-mute.png")).toExternalForm());
     private final Image unmuteImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/volume-down.png")).toExternalForm());
     private final Image volupImg = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/volume-up.png")).toExternalForm());
+    private final Image shuffleEnabled = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/shuffle-enabled.png")).toExternalForm());
+    private final Image shuffleDisabled = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/shuffle.png")).toExternalForm());
+    private final Image loopEnabled = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/arrows-repeat-enabled.png")).toExternalForm());
+    private final Image loopDisabled = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/arrows-repeat.png")).toExternalForm());
     private boolean isMuted = false;
     private double currentSliderValue = 0.5;
     private List<File> playlist = new ArrayList<>();
-    private int currentTrackIndex = -1; // -1 means no track selected
+    private int currentTrackIndex = -1;
     private File currentlyPlayingFile;
     private double currentVolume = 0.5;
+    private boolean isLoopEnabled = false;
+    private boolean isShuffleEnabled = false;
+    private List<File> shuffledPlaylist = new ArrayList<>();
+    private Random random = new Random();
+    private boolean isMetadataLoaded = false;
 
 
 
@@ -85,10 +100,13 @@ public class MainHomeController {
         // Allow multiple file selection
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(stage);
         if (selectedFiles != null && !selectedFiles.isEmpty()) {
-            // Add all selected files to the playlist
             playlist.addAll(selectedFiles);
 
-            // If nothing is currently playing, start playing the first file
+            if (isShuffleEnabled) {
+                shuffledPlaylist = new ArrayList<>(playlist);
+                Collections.shuffle(shuffledPlaylist);
+            }
+
             if (currentTrackIndex == -1) {
                 currentTrackIndex = 0;
                 playCurrentTrack();
@@ -116,7 +134,43 @@ public class MainHomeController {
         }
     }
 
+    private void bindSliderFill(Slider slider) {
+        // Listener to update the slider fill color
+        ChangeListener<Number> listener = (obs, oldVal, newVal) -> {
+            double percentage = (newVal.doubleValue() - slider.getMin()) /
+                    (slider.getMax() - slider.getMin()) * 100;
 
+            // Use Platform.runLater to ensure this runs after the UI is fully loaded
+            Platform.runLater(() -> {
+                Node track = slider.lookup(".track");
+                if (track != null) {
+                    track.setStyle(
+                            "-fx-background-color: linear-gradient(to right, " +
+                                    "#89CFF0 0%, " +
+                                    "#89CFF0 " + percentage + "%, " +
+                                    "#555 " + percentage + "%, " +
+                                    "#555 100%);"
+                    );
+                }
+            });
+        };
+
+        // Apply initial styling after the UI is ready
+        Platform.runLater(() -> {
+            slider.applyCss();  // Ensure the CSS is applied and the track node exists
+            listener.changed(null, null, slider.getValue());  // Apply the initial value
+        });
+
+        // Add listener to handle future changes
+        slider.valueProperty().addListener(listener);
+    }
+
+    @FXML
+    public void initialize() {
+        // Bind sliders after UI is initialized
+        bindSliderFill(timeSlider);
+        bindSliderFill(audioSlider);
+    }
 
     private void setupMediaPlayer() {
         MediaPlayer player = MusicPlayerManager.getMediaPlayer();
@@ -188,7 +242,7 @@ public class MainHomeController {
 
             player.setOnEndOfMedia(() -> {
                 playPauseImage.setImage(playImg);
-                playNext(); // Automatically play next when current finishes
+                playNext();
             });
         }
     }
@@ -235,32 +289,49 @@ public class MainHomeController {
     private void playNext() {
         if (playlist.isEmpty()) return;
 
-        if (currentTrackIndex < playlist.size() - 1) {
+        List<File> currentPlaylist = isShuffleEnabled ? shuffledPlaylist : playlist;
+
+        if (currentTrackIndex < currentPlaylist.size() - 1) {
             currentTrackIndex++;
-            playCurrentTrack();
+        } else if (isLoopEnabled) {
+            currentTrackIndex = 0;
+            if (isShuffleEnabled) {
+                // Reshuffle when looping back
+                Collections.shuffle(shuffledPlaylist);
+            }
         } else {
-            // Optional: loop back to start
-            // currentTrackIndex = 0;
-            // playCurrentTrack();
             System.out.println("End of playlist reached");
+            return;
         }
+
+        currentlyPlayingFile = currentPlaylist.get(currentTrackIndex);
+        playFile(currentlyPlayingFile);
     }
 
     @FXML
     private void playPrevious() {
-        if (playlist.isEmpty()) return;
+        MediaPlayer player = MusicPlayerManager.getMediaPlayer();
+
+        if (player != null && player.getCurrentTime().toSeconds() > 10) {
+            player.seek(Duration.ZERO);
+            return;
+        }
+
+        List<File> currentPlaylist = isShuffleEnabled ? shuffledPlaylist : playlist;
 
         if (currentTrackIndex > 0) {
             currentTrackIndex--;
-            playCurrentTrack();
-        } else {
-            // Optional: loop to end
-            // currentTrackIndex = playlist.size() - 1;
-            // playCurrentTrack();
-            System.out.println("Beginning of playlist reached");
+            currentlyPlayingFile = currentPlaylist.get(currentTrackIndex);
+            playFile(currentlyPlayingFile);
+        } else if (isLoopEnabled) {
+            currentTrackIndex = currentPlaylist.size() - 1;
+            currentlyPlayingFile = currentPlaylist.get(currentTrackIndex);
+            playFile(currentlyPlayingFile);
         }
     }
 
+    /*
+    extra fallbacks
 
     private void updateNowPlayingFallbacks(Media media) {
         String fallbackTitle;
@@ -282,6 +353,8 @@ public class MainHomeController {
         if (albumArtImageView != null) albumArtImageView.setImage(fallbackImage);
     }
 
+    */
+
 
     //spremeni ui
     private void updateNowPlayingUI() {
@@ -293,17 +366,21 @@ public class MainHomeController {
             String fallbackTitle = getFallbackTitle(media);
             Image fallbackImage = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/music-note.png")).toExternalForm());
 
-            // Update UI with fallbacks
+            // Update UI with fallbacks initially
             if (titleLabel != null) titleLabel.setText(fallbackTitle);
             if (albumArtImageView != null) albumArtImageView.setImage(fallbackImage);
 
-            // Then try to update with actual metadata
-            updateUIFromMetadata(metadata, media);
+            // Check if metadata is available
+            if (!metadata.isEmpty()) {
+                // If metadata is available, update UI with it
+                updateUIFromMetadata(metadata);
+            }
 
             // Listen for future metadata changes
             metadata.addListener((MapChangeListener<String, Object>) change -> {
                 if (change.wasAdded()) {
-                    updateUIFromMetadata(metadata, media);
+                    // Check if metadata exists and update UI
+                    updateUIFromMetadata(metadata);
                 }
             });
         }
@@ -320,13 +397,13 @@ public class MainHomeController {
     }
 
 
-    private void updateUIFromMetadata(ObservableMap<String, Object> metadata, Media media) {
+    private void updateUIFromMetadata(ObservableMap<String, Object> metadata) {
         Object title = metadata.get("title");
         Object artist = metadata.get("artist");
         Object album = metadata.get("album");
         Object image = metadata.get("image");
 
-        // Only update if metadata exists
+        // Only update if metadata exists and is not empty
         if (title != null && !title.toString().isEmpty()) {
             titleLabel.setText(title.toString());
         }
@@ -353,6 +430,49 @@ public class MainHomeController {
         }
     }
 
+
+    @FXML
+    private void toggleLoop() {
+        isLoopEnabled = !isLoopEnabled;
+        updateLoopButtonAppearance();
+    }
+
+    private void updateLoopButtonAppearance() {
+        if (isLoopEnabled) {
+            loopImg.setImage(loopEnabled);
+        } else {
+            loopImg.setImage(loopDisabled);
+        }
+    }
+
+    @FXML
+    private void toggleShuffle() {
+        isShuffleEnabled = !isShuffleEnabled;
+
+        // Update appearance immediately
+        updateShuffleButtonAppearance();
+
+        if (isShuffleEnabled) {
+            // Create shuffled playlist while keeping current track
+            shuffledPlaylist = new ArrayList<>(playlist);
+            Collections.shuffle(shuffledPlaylist);
+
+            // If a track is currently playing, move it to the front
+            if (currentlyPlayingFile != null && shuffledPlaylist.contains(currentlyPlayingFile)) {
+                shuffledPlaylist.remove(currentlyPlayingFile);
+                shuffledPlaylist.add(0, currentlyPlayingFile);
+                currentTrackIndex = 0;
+            }
+        }
+    }
+
+    private void updateShuffleButtonAppearance() {
+        if (isShuffleEnabled) {
+            shuffleImg.setImage(shuffleEnabled);
+        } else {
+            shuffleImg.setImage(shuffleDisabled);
+        }
+    }
 
     @FXML
     private void togglePlayPause() {
