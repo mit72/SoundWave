@@ -184,3 +184,11 @@
     -fx-pref-width: 16px;
     -fx-pref-height: 16px;
 }
+
+.custom-slider .track:hover{
+    -fx-cursor: hand;
+}
+
+.custom-slider .thumb:hover{
+    -fx-cursor: hand;
+}
