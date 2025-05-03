@@ -266,7 +266,7 @@
                   <Insets bottom="10.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="profileButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="900.0" text="Profile">
+            <Button fx:id="profileButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="900.0" text="Profile and settings">
                <styleClass>
                   <String fx:value="leftMainButtons" />
                   <String fx:value="creamyText" />

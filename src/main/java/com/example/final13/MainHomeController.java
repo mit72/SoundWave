@@ -41,7 +41,6 @@ public class MainHomeController {
     @FXML private Button minimizeButton;
     @FXML private Button windowedModeButton;
     @FXML private HBox titleBar;
-    @FXML private VBox centerContainer;
     @FXML private AnchorPane windowButtonsAnchor;
     @FXML private Button playPauseButton;
     @FXML private ImageView playPauseImage;
@@ -61,7 +60,9 @@ public class MainHomeController {
     @FXML private ImageView loopImg;
     @FXML private ImageView shuffleImg;
     @FXML private Button profileButton, chartsButton, queueButton, libraryButton, homeButton;
-    @FXML private BorderPane mainBorderPane;
+    @FXML
+    BorderPane mainBorderPane;
+    @FXML VBox centerContainer;
 
     private Stage stage;
     private final Border border = new Border();
@@ -93,6 +94,7 @@ public class MainHomeController {
         bindSliderFill(timeSlider);
         bindSliderFill(audioSlider);
         timeSlider.setDisable(true);
+
         // Set button actions
         setupNavigationButtons();
 
@@ -101,14 +103,24 @@ public class MainHomeController {
     }
 
     private void setupNavigationButtons() {
-        homeButton.setOnAction(e -> {
+        homeButton.setOnAction(event -> {
+            mainBorderPane.setCenter(initialCenterContent);
             setActiveButton(homeButton);
-            showHomeView();
         });
 
-        libraryButton.setOnAction(e -> {
-            setActiveButton(libraryButton);
-            loadViewLib("/com/example/final13/library-view.fxml");
+        libraryButton.setOnAction(event -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final13/library-view.fxml"));
+                Parent libraryView = loader.load();
+
+                LibraryController libraryController = loader.getController();
+                libraryController.setMainController(this);
+
+                mainBorderPane.setCenter(libraryView);
+                setActiveButton(libraryButton);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         queueButton.setOnAction(e -> {
@@ -125,6 +137,22 @@ public class MainHomeController {
             setActiveButton(profileButton);
             loadView("/com/example/final13/profile-view.fxml");
         });
+    }
+
+
+    public void showPlaylistView(Playlist playlist) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final13/playlist-view.fxml"));
+            Parent playlistView = loader.load();
+
+            PlaylistController controller = loader.getController();
+            controller.setMainController(this);
+            controller.initializeWithPlaylist(playlist);
+
+            mainBorderPane.setCenter(playlistView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadView(String fxmlPath) {
@@ -243,7 +271,7 @@ public class MainHomeController {
         }
     }
 
-    private void playFile(File file) {
+    void playFile(File file) {
         currentlyPlayingFile = file;
         MusicPlayerManager.playFile(file);
         setupMediaPlayer();

@@ -192,3 +192,116 @@
 .custom-slider .thumb:hover{
     -fx-cursor: hand;
 }
+
+.scroll-bar:vertical {
+    -fx-background-color: rgb(39,39,39);
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: rgb(39,39,39);
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(100, 100, 100, 0.5);
+    -fx-background-insets: 2;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-cursor:hand;
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-shape: null;
+    -fx-opacity: 0;
+}
+
+.table-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: transparent;
+}
+
+.table-row-cell:filled:selected .text {
+    -fx-fill: -fx-text-base-color;
+}
+
+.scroll-pane:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.scroll-pane{
+    -fx-background-color: rgb(39,39,39);
+}
+
+.invisibleButton{
+    -fx-background-color: rgb(39,39,39);
+    -fx-background-radius: 0;
+    -fx-text-fill: #D8C4B6;
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+    -fx-cursor: hand;
+}
+
+.blueButtons{
+    -fx-background-color: rgb(39,39,39);
+    -fx-background-radius: 0;
+    -fx-text-fill: #89CFF0;
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+    -fx-cursor: hand;
+    -fx-border-color:  #89CFF0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
+
+.xblueButtons{
+    -fx-background-color: #89CFF0;
+    -fx-background-radius: 5;
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+    -fx-cursor: hand;
+    -fx-border-color:  #89CFF0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
+
+.context-menu {
+    -fx-background-color: rgb(39, 39, 39);
+    -fx-border-color: #89CFF0;
+    -fx-border-width: 1px;
+}
+
+.menu-item {
+    -fx-background-color: rgb(39, 39, 39);
+    -fx-text-fill: #89CFF0;
+    -fx-cursor: hand;
+}
+
+.menu-item:focused {
+    -fx-background-color: #1e1e1e;
+}
+
+.menu-button {
+    -fx-text-fill: #89CFF0;
+}
+
+.table-column{
+    -fx-background-color:  #D8C4B6;
+    -fx-border-color: rgb(33,33,33);
+    -fx-border-width: 1px;
+}
+
+.table{
+    -fx-background-color:  #D8C4B6;
+    -fx-text-fill: #89CFF0;
+}
