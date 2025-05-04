@@ -2,24 +2,26 @@ package com.example.final13;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.media.Media;
@@ -31,6 +33,7 @@ import java.util.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.CountDownLatch;
 
 public class MainHomeController {
 
@@ -60,9 +63,17 @@ public class MainHomeController {
     @FXML private ImageView loopImg;
     @FXML private ImageView shuffleImg;
     @FXML private Button profileButton, chartsButton, queueButton, libraryButton, homeButton;
-    @FXML
-    BorderPane mainBorderPane;
+    @FXML BorderPane mainBorderPane;
     @FXML VBox centerContainer;
+    @FXML Button folderSelect;
+
+    @FXML private TableView<SongInfo> songTable;
+    @FXML private TableColumn<SongInfo, String> titleColumn;
+    @FXML private TableColumn<SongInfo, String> artistColumn;
+    @FXML private TableColumn<SongInfo, String> albumColumn;
+    @FXML private TableColumn<SongInfo, String> durationColumn;
+
+    private final ObservableList<SongInfo> songData = FXCollections.observableArrayList();
 
     private Stage stage;
     private final Border border = new Border();
@@ -100,6 +111,85 @@ public class MainHomeController {
 
         // Set home as default selected
         setActiveButton(homeButton);
+
+        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+        artistColumn.setCellValueFactory(new PropertyValueFactory<>("artist"));
+        albumColumn.setCellValueFactory(new PropertyValueFactory<>("album"));
+        durationColumn.setCellValueFactory(new PropertyValueFactory<>("duration"));
+
+        songTable.setItems(songData);
+        songTable.getColumns().forEach(column -> column.setReorderable(false));
+
+        songTable.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double tableWidth = newVal.doubleValue();
+            titleColumn.setPrefWidth(tableWidth * 0.40);    // 40%
+            artistColumn.setPrefWidth(tableWidth * 0.25);   // 25%
+            albumColumn.setPrefWidth(tableWidth * 0.25);    // 25%
+            durationColumn.setPrefWidth(tableWidth * 0.10); // 10%
+        });
+
+        File defaultMusicFolder = new File(System.getProperty("user.home") + "/Music");
+
+        // If the folder exists and is a directory, load it
+        if (defaultMusicFolder.exists() && defaultMusicFolder.isDirectory()) {
+            loadMusicFromFolder(defaultMusicFolder);
+        }
+
+        songTable.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                SongInfo selected = songTable.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    File file = new File(selected.getPath());
+                    playFile(file);
+                }
+            }
+        });
+    }
+
+    private void loadMusicFromFolder(File folder) {
+        // Use a Task to load the files in the background (same as before)
+        Task<Void> loadFilesTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                File[] files = folder.listFiles(f -> f.getName().endsWith(".mp3"));
+                if (files != null) {
+                    playlist.clear();
+                    songData.clear();
+
+                    // Add all files to the playlist
+                    for (File f : files) {
+                        playlist.add(f);
+                        SongInfo songInfo = extractMetadata(f);
+                        songData.add(songInfo);
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                super.succeeded();
+                //displaySongList(playlist);
+
+                /* Auto-play the first song if none is playing
+                if (currentTrackIndex == -1) {
+                    currentTrackIndex = 0;
+                    playCurrentTrack();
+                }
+
+                 */
+            }
+
+            @Override
+            protected void failed() {
+                super.failed();
+                //e.printStackTrace();
+            }
+        };
+
+        Thread thread = new Thread(loadFilesTask);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void setupNavigationButtons() {
@@ -108,6 +198,7 @@ public class MainHomeController {
             setActiveButton(homeButton);
         });
 
+        /*
         libraryButton.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final13/library-view.fxml"));
@@ -122,6 +213,7 @@ public class MainHomeController {
                 e.printStackTrace();
             }
         });
+        */
 
         queueButton.setOnAction(e -> {
             setActiveButton(queueButton);
@@ -195,7 +287,7 @@ public class MainHomeController {
     }
 
     private void setActiveButton(Button activeButton) {
-        Button[] navButtons = {homeButton, libraryButton, queueButton, chartsButton, profileButton};
+        Button[] navButtons = {homeButton,  queueButton, chartsButton, profileButton}; /* libraryButton*/
 
         for (Button button : navButtons) {
             if (button == activeButton) {
@@ -262,6 +354,174 @@ public class MainHomeController {
                 playCurrentTrack();
             }
         }
+    }
+
+    @FXML
+    public void handleFolderSelect() {
+        DirectoryChooser chooser = new DirectoryChooser();
+        File dir = chooser.showDialog(stage);
+        if (dir != null && dir.isDirectory()) {
+            // Use a Task to load the files in the background
+            Task<Void> loadFilesTask = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    // Get all mp3 files in the directory
+                    File[] files = dir.listFiles(f -> f.getName().endsWith(".mp3"));
+                    if (files != null) {
+                        // Clear the playlist and song data
+                        playlist.clear();
+                        songData.clear();
+
+                        // Add all the files to the playlist
+                        for (File f : files) {
+                            playlist.add(f);
+                            // You might want to add metadata extraction here
+                            SongInfo songInfo = extractMetadata(f);
+                            songData.add(songInfo);
+                        }
+                    }
+                    return null;
+                }
+
+                // After loading files, update the UI
+                @Override
+                protected void succeeded() {
+                    super.succeeded();
+                    // Update UI (back on the JavaFX Application Thread)
+                    // Display the songs in the center view
+                    //displaySongList(playlist);
+
+                    // Auto-play the first song if none is playing
+                    if (currentTrackIndex == -1) {
+                        currentTrackIndex = 0;
+                        playCurrentTrack();
+                    }
+                }
+
+                @Override
+                protected void failed() {
+                    super.failed();
+                    // Handle any errors that occurred during loading
+                    //e.printStackTrace();
+                }
+            };
+
+            // Start the background task
+            Thread thread = new Thread(loadFilesTask);
+            thread.setDaemon(true); // Allow the thread to exit when the application exits
+            thread.start();
+        }
+    }
+
+
+    private SongInfo extractMetadata(File file) {
+        try {
+            Media media = new Media(file.toURI().toString());
+            MediaPlayer tempPlayer = new MediaPlayer(media);
+
+            // Wait for metadata to load (simple blocking way)
+            CountDownLatch latch = new CountDownLatch(1);
+            tempPlayer.setOnReady(() -> latch.countDown());
+            latch.await();
+
+            Map<String, Object> meta = media.getMetadata();
+
+            String title = (String) meta.getOrDefault("title", file.getName());
+            String artist = (String) meta.getOrDefault("artist", "Unknown Artist");
+            String album = (String) meta.getOrDefault("album", "Unknown Album");
+            String duration = formatTime(media.getDuration());
+
+            tempPlayer.dispose();
+
+            return new SongInfo(title, artist, album, duration, file.getAbsolutePath());
+        } catch (Exception e) {
+            return new SongInfo(file.getName(), "Unknown", "Unknown", "Unknown", file.getAbsolutePath());
+        }
+    }
+
+    private void loadSongsFromFolder(File folder) {
+        File[] files = folder.listFiles((dir, name) ->
+                name.toLowerCase().endsWith(".mp3") ||
+                        name.toLowerCase().endsWith(".wav") ||
+                        name.toLowerCase().endsWith(".aac")
+        );
+
+        if (files != null && files.length > 0) {
+            playlist.clear();
+            playlist.addAll(Arrays.asList(files));
+
+            if (isShuffleEnabled) {
+                shuffledPlaylist = new ArrayList<>(playlist);
+                Collections.shuffle(shuffledPlaylist);
+            }
+
+            // Display the songs in the center view
+            //displaySongList(playlist);
+
+            // Auto-play the first song if none is playing
+            if (currentTrackIndex == -1) {
+                currentTrackIndex = 0;
+                playCurrentTrack();
+            }
+        }
+    }
+
+    private void displaySongList(List<File> songs) {
+        VBox songsContainer = new VBox(10);
+        songsContainer.setPadding(new Insets(20));
+        songsContainer.setAlignment(Pos.TOP_CENTER);
+
+        Label titleLabel = new Label("Songs in Folder");
+        titleLabel.getStyleClass().add("creamyText");
+        titleLabel.setFont(new Font(18));
+
+        songsContainer.getChildren().add(titleLabel);
+
+        for (int i = 0; i < songs.size(); i++) {
+            File song = songs.get(i);
+            HBox songEntry = createSongEntry(song, i);
+            songsContainer.getChildren().add(songEntry);
+        }
+
+        ScrollPane scrollPane = new ScrollPane(songsContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        mainBorderPane.setCenter(scrollPane);
+    }
+
+    private HBox createSongEntry(File song, int index) {
+        HBox entry = new HBox(10);
+        entry.setAlignment(Pos.CENTER_LEFT);
+        entry.setPadding(new Insets(5, 10, 5, 10));
+        entry.getStyleClass().add("songEntry");
+
+        // Add hover effect
+        entry.setOnMouseEntered(e -> entry.setStyle("-fx-background-color: #333;"));
+        entry.setOnMouseExited(e -> entry.setStyle("-fx-background-color: transparent;"));
+
+        // Track number
+        Label numberLabel = new Label((index + 1) + ".");
+        numberLabel.getStyleClass().add("creamyText");
+        numberLabel.setMinWidth(30);
+
+        // Song name (without extension)
+        String fileName = song.getName();
+        String songName = fileName.substring(0, fileName.lastIndexOf('.'));
+        Label nameLabel = new Label(songName);
+        nameLabel.getStyleClass().add("creamyText");
+        nameLabel.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(nameLabel, Priority.ALWAYS);
+
+        entry.getChildren().addAll(numberLabel, nameLabel);
+
+        // Set click handler to play the song
+        entry.setOnMouseClicked(e -> {
+            currentTrackIndex = index;
+            playFile(song);
+        });
+
+        return entry;
     }
 
     private void playCurrentTrack() {
