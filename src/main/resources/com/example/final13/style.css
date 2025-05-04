@@ -305,3 +305,28 @@
     -fx-background-color:  #D8C4B6;
     -fx-text-fill: #89CFF0;
 }
+
+.songEntry {
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-pref-width: 100%;
+}
+
+.songEntry:hover {
+    -fx-background-color: #333;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.table-view .scroll-bar:horizontal {
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+    -fx-min-height: 0;
+    visibility: hidden;
+}
