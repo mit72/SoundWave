@@ -294,7 +294,7 @@
 .menu-button {
     -fx-text-fill: #89CFF0;
 }
-
+/*
 .table-column{
     -fx-background-color:  #D8C4B6;
     -fx-border-color: rgb(33,33,33);
@@ -305,6 +305,7 @@
     -fx-background-color:  #D8C4B6;
     -fx-text-fill: #89CFF0;
 }
+*/
 
 .songEntry {
     -fx-background-radius: 5;
@@ -324,9 +325,59 @@
     -fx-background-color: transparent;
 }
 
+
 .table-view .scroll-bar:horizontal {
     -fx-pref-height: 0;
     -fx-max-height: 0;
     -fx-min-height: 0;
     visibility: hidden;
+}
+
+.queue-table {
+    -fx-background-color: rgb(39,39,39);
+    -fx-text-fill: white;
+}
+
+.queue-table .table-row-cell {
+    -fx-background-color: rgb(39,39,39);
+    -fx-text-fill: white;
+}
+
+.queue-table .table-row-cell:odd {
+    -fx-background-color: rgb(30,30,30);
+}
+
+.queue-table .table-row-cell:selected {
+    -fx-background-color: #89CFF0;
+    -fx-text-fill: black;
+}
+
+.queue-table .column-header {
+    -fx-background-color: #D8C4B6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.queue-table .table-cell {
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.queue-table .table-view .scroll-bar:vertical {
+    -fx-background-color: rgb(20,20,20);
+}
+
+.queue-table .table-view .scroll-bar:horizontal {
+    -fx-background-color: rgb(20,20,20);
+}
+
+.queue-table .table-row-cell:first-child {
+    -fx-background-color: #89CFF0;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
+.queue-table .table-row-cell:first-child .table-cell {
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
 }
