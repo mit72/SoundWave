@@ -67,36 +67,34 @@ public class QueueController {
         }
 
         // Add upcoming songs (up to MAX_QUEUE_SIZE - 1)
-        int startIndex = currentIndex + 1;
-        int endIndex = Math.min(startIndex + MAX_QUEUE_SIZE - 1, allSongs.size());
+        int songsToAdd = MAX_QUEUE_SIZE - 1;
+        int nextIndex = currentIndex + 1;
 
-        // If loop is enabled, we'll wrap around to the beginning
         if (isLoopEnabled) {
-            for (int i = startIndex; i < endIndex; i++) {
-                if (i < allSongs.size()) {
-                    filteredQueue.add(allSongs.get(i));
-                } else {
-                    // Wrap around to beginning
-                    filteredQueue.add(allSongs.get(i - allSongs.size()));
-                }
+            // When loop is enabled, show the playlist once (without repeating)
+            for (int i = nextIndex; i < allSongs.size() && songsToAdd > 0; i++) {
+                filteredQueue.add(allSongs.get(i));
+                songsToAdd--;
+            }
+
+            // If we still have room, start from beginning
+            for (int i = 0; i < currentIndex && songsToAdd > 0; i++) {
+                filteredQueue.add(allSongs.get(i));
+                songsToAdd--;
             }
         } else {
-            // Just add the next songs normally
-            for (int i = startIndex; i < endIndex && i < allSongs.size(); i++) {
+            // Normal mode - just show next songs
+            for (int i = nextIndex; i < allSongs.size() && songsToAdd > 0; i++) {
                 filteredQueue.add(allSongs.get(i));
+                songsToAdd--;
             }
-        }
-
-        // Limit to MAX_QUEUE_SIZE
-        while (filteredQueue.size() > MAX_QUEUE_SIZE) {
-            filteredQueue.remove(filteredQueue.size() - 1);
         }
 
         queueTableView.setItems(filteredQueue);
 
         // Highlight the currently playing song
         if (!filteredQueue.isEmpty()) {
-            queueTableView.getSelectionModel().select(0);
+            queueTableView.getSelectionModel().clearAndSelect(0);
             queueTableView.scrollTo(0);
         }
     }

@@ -6,11 +6,11 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: rgb(39,39,39);" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final13.QueueController">
+<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: rgb(39,39,39);" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final13.QueueController">
    <content>
       <VBox prefHeight="200.0" prefWidth="100.0" styleClass="bottomMain" stylesheets="@style.css">
          <children>
-            <TableView fx:id="queueTableView" prefHeight="200.0" prefWidth="200.0" styleClass="queue-table" stylesheets="@style.css">
+            <TableView fx:id="queueTableView" prefHeight="200.0" prefWidth="200.0" styleClass="queue-table" stylesheets="@style.css" VBox.vgrow="SOMETIMES">
               <columns>
                 <TableColumn fx:id="titleColumn" editable="false" prefWidth="75.0" sortable="false" text="Title" />
                 <TableColumn fx:id="artistColumn" editable="false" prefWidth="75.0" sortable="false" text="Artist" />
