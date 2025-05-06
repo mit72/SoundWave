@@ -20,7 +20,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -255,7 +254,7 @@ public class MainHomeController {
 
             mainBorderPane.setCenter(playlistView);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -273,7 +272,7 @@ public class MainHomeController {
             currentView = view;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             showHomeView();
             setActiveButton(homeButton);
         }
@@ -310,7 +309,7 @@ public class MainHomeController {
             currentView = view;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             showHomeView();
             setActiveButton(homeButton);
         }
@@ -326,7 +325,7 @@ public class MainHomeController {
             view.prefHeightProperty().bind(mainBorderPane.heightProperty());
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             showHomeView();
             setActiveButton(homeButton);
         }
@@ -363,7 +362,7 @@ public class MainHomeController {
             // libraryController.setMainController(this);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             // Optionally revert to initial content on error
             mainBorderPane.setCenter(initialCenterContent);
         }
