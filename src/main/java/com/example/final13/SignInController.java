@@ -228,6 +228,4 @@ public class SignInController {
         stage.setMaximized(!stage.isMaximized());
     }
 
-
-
 }
