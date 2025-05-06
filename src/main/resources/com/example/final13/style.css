@@ -224,14 +224,6 @@
     -fx-faint-focus-color: transparent;
 }
 
-.table-row-cell:filled:selected {
-    -fx-background-color: transparent;
-}
-
-.table-row-cell:filled:selected .text {
-    -fx-fill: -fx-text-base-color;
-}
-
 .scroll-pane:focused {
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
@@ -259,7 +251,19 @@
     -fx-translate-y: 0;
     -fx-background-insets: 0;
     -fx-cursor: hand;
-    -fx-border-color:  #89CFF0;
+    -fx-border-color: #89CFF0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
+
+.redButtons{
+    -fx-background-color: rgb(39,39,39);
+    -fx-background-radius: 0;
+    -fx-text-fill: red;
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+    -fx-cursor: hand;
+    -fx-border-color: red;
     -fx-border-width: 1px;
     -fx-border-radius: 5px;
 }
@@ -347,7 +351,7 @@
     -fx-background-color: rgb(30,30,30);
 }
 
-.queue-table .table-row-cell:selected {
+.main-table .table-row-cell:selected {
     -fx-background-color: #89CFF0;
     -fx-text-fill: black;
 }
@@ -371,13 +375,36 @@
     -fx-background-color: rgb(20,20,20);
 }
 
-.queue-table .table-row-cell:first-child {
-    -fx-background-color: #89CFF0;
+.queue-table .table-row-cell:first-child .table-cell {
     -fx-text-fill: black;
     -fx-font-weight: bold;
 }
 
-.queue-table .table-row-cell:first-child .table-cell {
-    -fx-text-fill: black;
-    -fx-font-weight: bold;
+.toggle-button {
+    -fx-background-color: rgb(39,39,39);
+    -fx-padding: 0.25em;
+    -fx-background-radius: 1em;
+    -fx-border-radius: 1em;
+    -fx-border-color: #555;
+    -fx-border-width: 2px;
+    -fx-alignment: center-left;
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+}
+
+.toggle-button:hover{
+    -fx-background-color: rgb(49,49,49);
+    -fx-border-color: #666;
+    -fx-cursor: hand;
+}
+
+.toggle-button:selected {
+    -fx-background-color: #4CAF50;
+    -fx-alignment: center-right;
+}
+
+.toggle-button .text {
+    -fx-background-color: white;
+    -fx-shape: "M0,0 h20 a10,10 0 0 1 0,20 h-20 a10,10 0 0 1 0,-20 z";
+    -fx-padding: 0;
 }
