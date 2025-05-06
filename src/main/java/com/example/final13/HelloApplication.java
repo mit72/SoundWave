@@ -23,7 +23,7 @@ public class HelloApplication extends Application {
         stage.setMinHeight(500);
 
         stage.setScene(scene);
-        stage.setTitle("Music Player");
+        stage.setTitle("SoundWave");
         stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         //stage.setMaximized(true);
 
