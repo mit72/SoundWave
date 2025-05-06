@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 public class MainHomeController {
 
@@ -97,6 +98,7 @@ public class MainHomeController {
     private List<File> shuffledPlaylist = new ArrayList<>();
     private Parent initialCenterContent;
     private Parent currentView;
+    private QueueController queueController;
 
     @FXML
     public void initialize() {
@@ -140,10 +142,20 @@ public class MainHomeController {
                 SongInfo selected = songTable.getSelectionModel().getSelectedItem();
                 if (selected != null) {
                     File file = new File(selected.getPath());
+
+                    // Update currentTrackIndex
+                    for (int i = 0; i < playlist.size(); i++) {
+                        if (playlist.get(i).equals(file)) {
+                            currentTrackIndex = i;
+                            break;
+                        }
+                    }
+
                     playFile(file);
                 }
             }
         });
+
     }
 
     private void loadMusicFromFolder(File folder) {
@@ -217,7 +229,7 @@ public class MainHomeController {
 
         queueButton.setOnAction(e -> {
             setActiveButton(queueButton);
-            loadView("/com/example/final13/queue-view.fxml");
+            loadViewQue("/com/example/final13/queue-view.fxml");
         });
 
         chartsButton.setOnAction(e -> {
@@ -247,24 +259,58 @@ public class MainHomeController {
         }
     }
 
-    private void loadView(String fxmlPath) {
+    private void loadViewQue(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent view = loader.load();
 
-            // Get controller and initialize if needed
-            Object controller = loader.getController();
-            /*if (controller instanceof LibraryController) {
-                ((LibraryController) controller).initializeWithData(playlist);
-            }*/
-            // Add similar blocks for other controllers
+            // Get the controller and set it up
+            queueController = loader.getController();
+            queueController.setMainController(this);
+            updateQueueView(); // Initialize the queue view
 
             mainBorderPane.setCenter(view);
             currentView = view;
 
         } catch (IOException e) {
             e.printStackTrace();
-            // Fallback to home view
+            showHomeView();
+            setActiveButton(homeButton);
+        }
+    }
+
+    public void playSelectedFromQueue(SongInfo selected) {
+        File file = new File(selected.getPath());
+
+        // Find the index of the selected song in the playlist
+        for (int i = 0; i < playlist.size(); i++) {
+            if (playlist.get(i).equals(file)) {
+                currentTrackIndex = i;
+                playFile(file);
+                break;
+            }
+        }
+    }
+
+    private void updateQueueView() {
+        if (queueController != null) {
+            queueController.updateQueue(songData, currentTrackIndex, isLoopEnabled);
+        }
+    }
+
+
+
+    private void loadView(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent view = loader.load();
+
+
+            mainBorderPane.setCenter(view);
+            currentView = view;
+
+        } catch (IOException e) {
+            e.printStackTrace();
             showHomeView();
             setActiveButton(homeButton);
         }
@@ -438,7 +484,7 @@ public class MainHomeController {
             return new SongInfo(file.getName(), "Unknown", "Unknown", "Unknown", file.getAbsolutePath());
         }
     }
-
+/*
     private void loadSongsFromFolder(File folder) {
         File[] files = folder.listFiles((dir, name) ->
                 name.toLowerCase().endsWith(".mp3") ||
@@ -489,7 +535,7 @@ public class MainHomeController {
 
         mainBorderPane.setCenter(scrollPane);
     }
-
+*/
     private HBox createSongEntry(File song, int index) {
         HBox entry = new HBox(10);
         entry.setAlignment(Pos.CENTER_LEFT);
@@ -535,12 +581,13 @@ public class MainHomeController {
         currentlyPlayingFile = file;
         MusicPlayerManager.playFile(file);
         setupMediaPlayer();
+        updateQueueView(); // Add this line
 
         //audio
         MediaPlayer player = MusicPlayerManager.getMediaPlayer();
         if (player != null) {
             player.setVolume(currentVolume);
-            audioSlider.setValue(currentVolume); // Update slider position
+            audioSlider.setValue(currentVolume);
         }
     }
 
@@ -711,6 +758,7 @@ public class MainHomeController {
 
         currentlyPlayingFile = currentPlaylist.get(currentTrackIndex);
         playFile(currentlyPlayingFile);
+        updateQueueView();
     }
 
     @FXML
@@ -733,6 +781,7 @@ public class MainHomeController {
             currentlyPlayingFile = currentPlaylist.get(currentTrackIndex);
             playFile(currentlyPlayingFile);
         }
+        updateQueueView();
     }
 
     /*
@@ -840,7 +889,9 @@ public class MainHomeController {
     private void toggleLoop() {
         isLoopEnabled = !isLoopEnabled;
         updateLoopButtonAppearance();
+        updateQueueView(); // Add this line
     }
+
 
     private void updateLoopButtonAppearance() {
         if (isLoopEnabled) {
@@ -853,23 +904,21 @@ public class MainHomeController {
     @FXML
     private void toggleShuffle() {
         isShuffleEnabled = !isShuffleEnabled;
-
-        // Update appearance immediately
         updateShuffleButtonAppearance();
 
         if (isShuffleEnabled) {
-            // Create shuffled playlist while keeping current track
             shuffledPlaylist = new ArrayList<>(playlist);
             Collections.shuffle(shuffledPlaylist);
 
-            // If a track is currently playing, move it to the front
             if (currentlyPlayingFile != null && shuffledPlaylist.contains(currentlyPlayingFile)) {
                 shuffledPlaylist.remove(currentlyPlayingFile);
                 shuffledPlaylist.add(0, currentlyPlayingFile);
                 currentTrackIndex = 0;
             }
         }
+        updateQueueView(); // Add this line
     }
+
 
     private void updateShuffleButtonAppearance() {
         if (isShuffleEnabled) {

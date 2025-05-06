@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <center>
-      <VBox prefHeight="400.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: rgb(39,39,39);" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final13.QueueController">
+   <content>
+      <VBox prefHeight="200.0" prefWidth="100.0" styleClass="bottomMain" stylesheets="@style.css">
          <children>
-            <Label styleClass="creamyText" text="QUEUE" />
+            <TableView fx:id="queueTableView" prefHeight="200.0" prefWidth="200.0" styleClass="queue-table" stylesheets="@style.css">
+              <columns>
+                <TableColumn fx:id="titleColumn" editable="false" prefWidth="75.0" sortable="false" text="Title" />
+                <TableColumn fx:id="artistColumn" editable="false" prefWidth="75.0" sortable="false" text="Artist" />
+                  <TableColumn fx:id="albumColumn" editable="false" prefWidth="75.0" sortable="false" text="Album" />
+                  <TableColumn fx:id="durationColumn" editable="false" prefWidth="75.0" sortable="false" text="Duration" />
+              </columns>
+            </TableView>
          </children>
       </VBox>
-   </center>
-</BorderPane>
+   </content>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+</ScrollPane>
