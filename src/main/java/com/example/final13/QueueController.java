@@ -7,6 +7,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.io.File;
+import java.util.List;
+
 public class QueueController {
     @FXML private TableView<SongInfo> queueTableView;
     @FXML private TableColumn<SongInfo, String> titleColumn;
@@ -61,9 +64,21 @@ public class QueueController {
             return;
         }
 
-        // Always add the currently playing song first
-        if (currentIndex >= 0 && currentIndex < allSongs.size()) {
-            filteredQueue.add(allSongs.get(currentIndex));
+        // Get the current playlist (shuffled or normal)
+        List<File> currentPlaylist = mainController.isShuffleEnabled ?
+                mainController.shuffledPlaylist :
+                mainController.playlist;
+
+        // Find the current song in the playlist
+        if (currentIndex >= 0 && currentIndex < currentPlaylist.size()) {
+            File currentFile = currentPlaylist.get(currentIndex);
+            // Find the corresponding SongInfo
+            for (SongInfo info : allSongs) {
+                if (info.getPath().equals(currentFile.getAbsolutePath())) {
+                    filteredQueue.add(info);
+                    break;
+                }
+            }
         }
 
         // Add upcoming songs (up to MAX_QUEUE_SIZE - 1)
@@ -71,22 +86,35 @@ public class QueueController {
         int nextIndex = currentIndex + 1;
 
         if (isLoopEnabled) {
-            // When loop is enabled, show the playlist once (without repeating)
-            for (int i = nextIndex; i < allSongs.size() && songsToAdd > 0; i++) {
-                filteredQueue.add(allSongs.get(i));
-                songsToAdd--;
-            }
+            // Show the entire playlist once (excluding current song if it's already shown)
+            int startIndex = nextIndex % currentPlaylist.size();
+            int added = 0;
 
-            // If we still have room, start from beginning
-            for (int i = 0; i < currentIndex && songsToAdd > 0; i++) {
-                filteredQueue.add(allSongs.get(i));
-                songsToAdd--;
+            // Add songs until we reach the current song again or hit the limit
+            for (int i = 0; i < currentPlaylist.size() - 1 && added < songsToAdd; i++) {
+                int index = (startIndex + i) % currentPlaylist.size();
+                File file = currentPlaylist.get(index);
+
+                // Find the corresponding SongInfo
+                for (SongInfo info : allSongs) {
+                    if (info.getPath().equals(file.getAbsolutePath())) {
+                        filteredQueue.add(info);
+                        added++;
+                        break;
+                    }
+                }
             }
         } else {
             // Normal mode - just show next songs
-            for (int i = nextIndex; i < allSongs.size() && songsToAdd > 0; i++) {
-                filteredQueue.add(allSongs.get(i));
-                songsToAdd--;
+            for (int i = nextIndex; i < currentPlaylist.size() && filteredQueue.size() < MAX_QUEUE_SIZE; i++) {
+                File file = currentPlaylist.get(i);
+                // Find the corresponding SongInfo
+                for (SongInfo info : allSongs) {
+                    if (info.getPath().equals(file.getAbsolutePath())) {
+                        filteredQueue.add(info);
+                        break;
+                    }
+                }
             }
         }
 

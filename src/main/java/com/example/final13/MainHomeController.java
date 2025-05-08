@@ -88,13 +88,13 @@ public class MainHomeController {
     private final Image loopDisabled = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/arrows-repeat.png")).toExternalForm());
     private boolean isMuted = false;
     private double currentSliderValue = 0.5;
-    private List<File> playlist = new ArrayList<>();
+    List<File> playlist = new ArrayList<>();
     private int currentTrackIndex = -1;
     private File currentlyPlayingFile;
     private double currentVolume = 0.5;
     private boolean isLoopEnabled = false;
-    private boolean isShuffleEnabled = false;
-    private List<File> shuffledPlaylist = new ArrayList<>();
+    boolean isShuffleEnabled = false;
+    List<File> shuffledPlaylist = new ArrayList<>();
     private Parent initialCenterContent;
     private Parent currentView;
     private QueueController queueController;
@@ -580,7 +580,16 @@ public class MainHomeController {
         currentlyPlayingFile = file;
         MusicPlayerManager.playFile(file);
         setupMediaPlayer();
-        updateQueueView(); // Add this line
+        updateQueueView();
+
+        // Update currentTrackIndex based on shuffle state
+        List<File> currentPlaylist = isShuffleEnabled ? shuffledPlaylist : playlist;
+        for (int i = 0; i < currentPlaylist.size(); i++) {
+            if (currentPlaylist.get(i).equals(file)) {
+                currentTrackIndex = i;
+                break;
+            }
+        }
 
         //audio
         MediaPlayer player = MusicPlayerManager.getMediaPlayer();
@@ -746,9 +755,11 @@ public class MainHomeController {
             currentTrackIndex++;
         } else if (isLoopEnabled) {
             currentTrackIndex = 0;
+            // Only reshuffle if we're at the end and shuffle is enabled
             if (isShuffleEnabled) {
-                // Reshuffle when looping back
-                Collections.shuffle(shuffledPlaylist);
+                // Instead of reshuffling, just start from the beginning of the current shuffled playlist
+                // This maintains the same shuffle order until manually reshuffled
+                currentTrackIndex = 0;
             }
         } else {
             System.out.println("End of playlist reached");
@@ -906,16 +917,36 @@ public class MainHomeController {
         updateShuffleButtonAppearance();
 
         if (isShuffleEnabled) {
+            // Create a new shuffled playlist
             shuffledPlaylist = new ArrayList<>(playlist);
             Collections.shuffle(shuffledPlaylist);
 
-            if (currentlyPlayingFile != null && shuffledPlaylist.contains(currentlyPlayingFile)) {
-                shuffledPlaylist.remove(currentlyPlayingFile);
-                shuffledPlaylist.add(0, currentlyPlayingFile);
-                currentTrackIndex = 0;
+            // If a song is currently playing, move it to the front
+            if (currentlyPlayingFile != null) {
+                // Find the current song in the shuffled playlist
+                for (int i = 0; i < shuffledPlaylist.size(); i++) {
+                    if (shuffledPlaylist.get(i).equals(currentlyPlayingFile)) {
+                        // Move it to the front and update currentTrackIndex
+                        File current = shuffledPlaylist.remove(i);
+                        shuffledPlaylist.add(0, current);
+                        currentTrackIndex = 0;
+                        break;
+                    }
+                }
+            }
+        } else {
+            // When turning off shuffle, find the current song in the original playlist
+            if (currentlyPlayingFile != null) {
+                for (int i = 0; i < playlist.size(); i++) {
+                    if (playlist.get(i).equals(currentlyPlayingFile)) {
+                        currentTrackIndex = i;
+                        break;
+                    }
+                }
             }
         }
-        updateQueueView(); // Add this line
+
+        updateQueueView();
     }
 
 
