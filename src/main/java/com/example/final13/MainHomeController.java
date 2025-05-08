@@ -66,6 +66,7 @@ public class MainHomeController {
     @FXML BorderPane mainBorderPane;
     @FXML VBox centerContainer;
     @FXML Button folderSelect;
+    @FXML private Button addFilesButton;
 
     @FXML private TableView<SongInfo> songTable;
     @FXML private TableColumn<SongInfo, String> titleColumn;
@@ -182,13 +183,12 @@ public class MainHomeController {
                 super.succeeded();
                 //displaySongList(playlist);
 
-                /* Auto-play the first song if none is playing
+                /*Auto-play the first song if none is playing good to have? but starts playing on app start
                 if (currentTrackIndex == -1) {
                     currentTrackIndex = 0;
                     playCurrentTrack();
                 }
-
-                 */
+                */
             }
 
             @Override
@@ -376,30 +376,86 @@ public class MainHomeController {
 
     @FXML
     private void handleFileSelect(ActionEvent event) {
-        currentSliderValue = audioSlider.getValue();
-
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Music File");
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Audio Files", "*.mp3", "*.wav", "*.aac")
         );
 
-        // Allow multiple file selection
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(stage);
         if (selectedFiles != null && !selectedFiles.isEmpty()) {
-            playlist.addAll(selectedFiles);
+            // Clear existing songs
+            playlist.clear();
+            songData.clear();
 
+            // Load files asynchronously
+            loadFilesAsync(selectedFiles, true);
+        }
+    }
+
+    // New method to add files without clearing
+    @FXML
+    private void handleAddFiles() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Add Music Files");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Audio Files", "*.mp3", "*.wav", "*.aac")
+        );
+
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(stage);
+        if (selectedFiles != null && !selectedFiles.isEmpty()) {
+            // Load files asynchronously without clearing
+            loadFilesAsync(selectedFiles, false);
+        }
+    }
+
+    //now thread ka ce ne freeza
+    private void loadFilesAsync(List<File> files, boolean clearBeforeAdd) {
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                if (clearBeforeAdd) {
+                    Platform.runLater(() -> {
+                        playlist.clear();
+                        songData.clear();
+                    });
+                }
+
+                for (File file : files) {
+                    if (isCancelled()) break;
+
+                    SongInfo songInfo = extractMetadata(file);
+                    Platform.runLater(() -> {
+                        playlist.add(file);
+                        songData.add(songInfo);
+                    });
+                }
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(e -> {
             if (isShuffleEnabled) {
                 shuffledPlaylist = new ArrayList<>(playlist);
                 Collections.shuffle(shuffledPlaylist);
             }
 
-            if (currentTrackIndex == -1) {
+            if (currentTrackIndex == -1 && !playlist.isEmpty()) {
                 currentTrackIndex = 0;
                 playCurrentTrack();
             }
-        }
+
+            updateQueueView();
+        });
+
+        task.setOnFailed(e -> {
+            // Handle error
+            System.err.println("Error loading files: " + task.getException().getMessage());
+        });
+
+        new Thread(task).start();
     }
+
 
     @FXML
     public void handleFolderSelect() {
@@ -464,14 +520,17 @@ public class MainHomeController {
             Media media = new Media(file.toURI().toString());
             MediaPlayer tempPlayer = new MediaPlayer(media);
 
-            // Wait for metadata to load (simple blocking way)
             CountDownLatch latch = new CountDownLatch(1);
             tempPlayer.setOnReady(() -> latch.countDown());
             latch.await();
 
             Map<String, Object> meta = media.getMetadata();
 
-            String title = (String) meta.getOrDefault("title", file.getName());
+            // Remove file extension from name
+            String fileName = file.getName();
+            String baseName = fileName.replaceFirst("[.][^.]+$", "");
+
+            String title = (String) meta.getOrDefault("title", baseName); // Use baseName instead of file.getName()
             String artist = (String) meta.getOrDefault("artist", "Unknown Artist");
             String album = (String) meta.getOrDefault("album", "Unknown Album");
             String duration = formatTime(media.getDuration());
@@ -480,7 +539,9 @@ public class MainHomeController {
 
             return new SongInfo(title, artist, album, duration, file.getAbsolutePath());
         } catch (Exception e) {
-            return new SongInfo(file.getName(), "Unknown", "Unknown", "Unknown", file.getAbsolutePath());
+            String fileName = file.getName();
+            String baseName = fileName.replaceFirst("[.][^.]+$", "");
+            return new SongInfo(baseName, "Unknown", "Unknown", "Unknown", file.getAbsolutePath());
         }
     }
 /*
@@ -534,7 +595,7 @@ public class MainHomeController {
 
         mainBorderPane.setCenter(scrollPane);
     }
-*/
+
     private HBox createSongEntry(File song, int index) {
         HBox entry = new HBox(10);
         entry.setAlignment(Pos.CENTER_LEFT);
@@ -568,7 +629,7 @@ public class MainHomeController {
 
         return entry;
     }
-
+*/
     private void playCurrentTrack() {
         if (currentTrackIndex >= 0 && currentTrackIndex < playlist.size()) {
             File fileToPlay = playlist.get(currentTrackIndex);
