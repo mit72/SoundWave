@@ -14,13 +14,12 @@ public class TrackLogger {
                     "VALUES (stream_seq.NEXTVAL, ?, ?, ?, ?, ?)";
 
     public static void logTrack(String title, String artist, String album, int userId) {
-        // Additional validation
-        if (title == null || title.isEmpty() ||
-                artist == null || artist.isEmpty() ||
-                album == null || album.isEmpty()) {
-            System.err.println("Invalid metadata - not logging");
-            return;
-        }
+        // Ensure we have valid values for all fields
+        title = (title == null || title.isEmpty()) ? "Unknown" : title;
+        artist = (artist == null || artist.isEmpty() || artist.equals("Unknown Artist")) ?
+                "Unknown Artist" : artist;
+        album = (album == null || album.isEmpty() || album.equals("Unknown Album")) ?
+                "Unknown Album" : album;
 
         try (Connection conn = OracleConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(INSERT_STREAM_SQL)) {
@@ -37,7 +36,6 @@ public class TrackLogger {
             }
         } catch (SQLException e) {
             System.err.println("Error logging track: " + e.getMessage());
-            // Log the error but don't crash
         }
     }
 }

@@ -720,21 +720,22 @@ public class MainHomeController {
             protected Void call() throws Exception {
                 SongInfo currentInfo = extractMetadata(currentlyPlayingFile);
 
-                // Additional validation
-                if (!currentInfo.getArtist().equals("Unknown Artist") &&
-                        !currentInfo.getAlbum().equals("Unknown Album") &&
-                        !currentInfo.getTitle().startsWith("Unknown")) {
-
-                    // Check if this track was already logged recently
-                    if (!wasRecentlyLogged(currentlyPlayingTrackId)) {
-                        TrackLogger.logTrack(
-                                currentInfo.getTitle(),
-                                currentInfo.getArtist(),
-                                currentInfo.getAlbum(),
-                                currentUserId
-                        );
-                        rememberLoggedTrack(currentlyPlayingTrackId);
+                // Check if this track was already logged recently
+                if (!wasRecentlyLogged(currentlyPlayingTrackId)) {
+                    // Use filename as title if metadata is missing
+                    String titleToLog = currentInfo.getTitle();
+                    if (titleToLog.startsWith("Unknown") || titleToLog.isEmpty()) {
+                        titleToLog = currentlyPlayingFile.getName()
+                                .replaceFirst("[.][^.]+$", ""); // Remove file extension
                     }
+
+                    TrackLogger.logTrack(
+                            titleToLog,
+                            currentInfo.getArtist(),
+                            currentInfo.getAlbum(),
+                            currentUserId
+                    );
+                    rememberLoggedTrack(currentlyPlayingTrackId);
                 }
                 return null;
             }
