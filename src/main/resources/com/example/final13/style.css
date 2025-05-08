@@ -298,18 +298,6 @@
 .menu-button {
     -fx-text-fill: #89CFF0;
 }
-/*
-.table-column{
-    -fx-background-color:  #D8C4B6;
-    -fx-border-color: rgb(33,33,33);
-    -fx-border-width: 1px;
-}
-
-.table{
-    -fx-background-color:  #D8C4B6;
-    -fx-text-fill: #89CFF0;
-}
-*/
 
 .songEntry {
     -fx-background-radius: 5;
@@ -352,7 +340,12 @@
 }
 
 .main-table .table-row-cell:selected {
-    -fx-background-color: #89CFF0;
+    -fx-background-color: #89CFF0 !important;
+    -fx-text-fill: black;
+}
+
+.table-view .table-row-cell:hover{
+    -fx-background-color: rgb(60,60,60);
     -fx-text-fill: black;
 }
 
