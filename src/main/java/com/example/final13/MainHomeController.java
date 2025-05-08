@@ -1,5 +1,7 @@
 package com.example.final13;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -27,12 +29,17 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class MainHomeController {
@@ -99,6 +106,13 @@ public class MainHomeController {
     private Parent initialCenterContent;
     private Parent currentView;
     private QueueController queueController;
+    private Timeline playbackLogger;
+    private Duration playbackDuration = Duration.ZERO;
+    private boolean hasLoggedCurrentTrack = false;
+    private Timeline playbackTimer;
+    private String currentlyPlayingTrackId = "";
+
+    private int currentUserId = 1; // This should come from your login system
 
     @FXML
     public void initialize() {
@@ -516,33 +530,72 @@ public class MainHomeController {
 
 
     private SongInfo extractMetadata(File file) {
+        String fileName = file.getName();
+        String baseName = fileName.replaceFirst("[.][^.]+$", "");
+
+        // Create arrays to hold values (arrays are effectively final)
+        final String[] metadata = {
+                baseName,            // title
+                "Unknown Artist",    // artist
+                "Unknown Album",     // album
+                "Unknown"            // duration
+        };
+
         try {
             Media media = new Media(file.toURI().toString());
             MediaPlayer tempPlayer = new MediaPlayer(media);
-
             CountDownLatch latch = new CountDownLatch(1);
-            tempPlayer.setOnReady(() -> latch.countDown());
-            latch.await();
 
-            Map<String, Object> meta = media.getMetadata();
+            tempPlayer.setOnReady(() -> {
+                try {
+                    // Title extraction
+                    if (media.getMetadata().containsKey("title")) {
+                        metadata[0] = media.getMetadata().get("title").toString();
+                    } else if (media.getMetadata().containsKey("dc:title")) {
+                        metadata[0] = media.getMetadata().get("dc:title").toString();
+                    }
 
-            // Remove file extension from name
-            String fileName = file.getName();
-            String baseName = fileName.replaceFirst("[.][^.]+$", "");
+                    // Artist extraction
+                    if (media.getMetadata().containsKey("artist")) {
+                        metadata[1] = media.getMetadata().get("artist").toString();
+                    } else if (media.getMetadata().containsKey("author")) {
+                        metadata[1] = media.getMetadata().get("author").toString();
+                    } else if (media.getMetadata().containsKey("dc:creator")) {
+                        metadata[1] = media.getMetadata().get("dc:creator").toString();
+                    }
 
-            String title = (String) meta.getOrDefault("title", baseName); // Use baseName instead of file.getName()
-            String artist = (String) meta.getOrDefault("artist", "Unknown Artist");
-            String album = (String) meta.getOrDefault("album", "Unknown Album");
-            String duration = formatTime(media.getDuration());
+                    // Album extraction
+                    if (media.getMetadata().containsKey("album")) {
+                        metadata[2] = media.getMetadata().get("album").toString();
+                    } else if (media.getMetadata().containsKey("dc:album")) {
+                        metadata[2] = media.getMetadata().get("dc:album").toString();
+                    }
+
+                    // Duration formatting
+                    if (media.getDuration() != null && !media.getDuration().isUnknown()) {
+                        metadata[3] = formatTime(media.getDuration());
+                    }
+                } finally {
+                    latch.countDown();
+                }
+            });
+
+            // Start playback briefly to trigger metadata loading
+            tempPlayer.play();
+            tempPlayer.stop();
+
+            // Wait for metadata with timeout
+            if (!latch.await(3, TimeUnit.SECONDS)) {
+                System.out.println("Timeout waiting for metadata: " + fileName);
+            }
 
             tempPlayer.dispose();
-
-            return new SongInfo(title, artist, album, duration, file.getAbsolutePath());
         } catch (Exception e) {
-            String fileName = file.getName();
-            String baseName = fileName.replaceFirst("[.][^.]+$", "");
-            return new SongInfo(baseName, "Unknown", "Unknown", "Unknown", file.getAbsolutePath());
+            System.err.println("Error extracting metadata for: " + fileName);
+            e.printStackTrace();
         }
+
+        return new SongInfo(metadata[0], metadata[1], metadata[2], metadata[3], file.getAbsolutePath());
     }
 /*
     private void loadSongsFromFolder(File folder) {
@@ -638,26 +691,84 @@ public class MainHomeController {
     }
 
     void playFile(File file) {
+        // Reset tracking for new track
+        resetPlaybackTracking();
+
         currentlyPlayingFile = file;
+        currentlyPlayingTrackId = file.getAbsolutePath(); // Unique identifier for the track
         MusicPlayerManager.playFile(file);
         setupMediaPlayer();
         updateQueueView();
 
-        // Update currentTrackIndex based on shuffle state
-        List<File> currentPlaylist = isShuffleEnabled ? shuffledPlaylist : playlist;
-        for (int i = 0; i < currentPlaylist.size(); i++) {
-            if (currentPlaylist.get(i).equals(file)) {
-                currentTrackIndex = i;
-                break;
-            }
-        }
+        // Start playback tracking
+        startPlaybackTracking();
 
-        //audio
+        // Set audio properties
         MediaPlayer player = MusicPlayerManager.getMediaPlayer();
         if (player != null) {
             player.setVolume(currentVolume);
             audioSlider.setValue(currentVolume);
         }
+    }
+
+    private void logCurrentTrack() {
+        if (currentlyPlayingFile == null || hasLoggedCurrentTrack) return;
+
+        // Create task for metadata extraction and logging
+        Task<Void> loggingTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                SongInfo currentInfo = extractMetadata(currentlyPlayingFile);
+
+                // Additional validation
+                if (!currentInfo.getArtist().equals("Unknown Artist") &&
+                        !currentInfo.getAlbum().equals("Unknown Album") &&
+                        !currentInfo.getTitle().startsWith("Unknown")) {
+
+                    // Check if this track was already logged recently
+                    if (!wasRecentlyLogged(currentlyPlayingTrackId)) {
+                        TrackLogger.logTrack(
+                                currentInfo.getTitle(),
+                                currentInfo.getArtist(),
+                                currentInfo.getAlbum(),
+                                currentUserId
+                        );
+                        rememberLoggedTrack(currentlyPlayingTrackId);
+                    }
+                }
+                return null;
+            }
+        };
+
+        new Thread(loggingTask).start();
+        hasLoggedCurrentTrack = true;
+    }
+
+    // Add these to your controller class
+    private final Map<String, LocalDateTime> recentLogs = new ConcurrentHashMap<>();
+    private static final Duration LOG_COOLDOWN = Duration.seconds(30);
+
+    private boolean wasRecentlyLogged(String trackId) {
+        LocalDateTime lastLog = recentLogs.get(trackId);
+        return lastLog != null && lastLog.plus((TemporalAmount) LOG_COOLDOWN).isAfter(LocalDateTime.now());
+    }
+
+    private void rememberLoggedTrack(String trackId) {
+        recentLogs.put(trackId, LocalDateTime.now());
+
+        // Clean up old entries periodically
+        if (recentLogs.size() > 100) {
+            recentLogs.entrySet().removeIf(entry ->
+                    entry.getValue().plus((TemporalAmount) LOG_COOLDOWN).isBefore(LocalDateTime.now())
+            );
+        }
+    }
+
+    private boolean isValidMetadata(SongInfo info) {
+        return !info.getArtist().equals("Unknown Artist") &&
+                !info.getAlbum().equals("Unknown Album") &&
+                !info.getTitle().startsWith("Unknown") &&
+                !info.getDuration().equals("Unknown");
     }
 
     private void bindSliderFill(Slider slider) {
@@ -694,11 +805,13 @@ public class MainHomeController {
     private void setupMediaPlayer() {
         MediaPlayer player = MusicPlayerManager.getMediaPlayer();
         playPauseImage.setImage(pauseImg);
+        resetPlaybackTracking();
 
         timeSlider.setDisable(false);
 
         player.setVolume(currentVolume);
         audioSlider.setValue(currentVolume);
+
 
         audioSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             currentVolume = newValue.doubleValue();
@@ -765,7 +878,71 @@ public class MainHomeController {
                 playPauseImage.setImage(playImg);
                 playNext();
             });
+
+            if (media != null) {
+                media.getMetadata().addListener((MapChangeListener<String, Object>) change -> {
+                    if (change.wasAdded()) {
+                        logCurrentTrack();
+                    }
+                });
+            }
+
+            player.setOnPaused(() -> {
+                if (playbackTimer != null) {
+                    playbackTimer.pause();
+                }
+            });
+
+            player.setOnPlaying(() -> {
+                if (playbackTimer != null) {
+                    playbackTimer.play();
+                } else {
+                    startPlaybackTracking();
+                }
+            });
+
+            player.setOnStopped(() -> {
+                resetPlaybackTracking();
+            });
+
+            player.setOnEndOfMedia(() -> {
+                resetPlaybackTracking();
+                playNext();
+            });
         }
+    }
+
+    private void startPlaybackTracking() {
+        playbackDuration = Duration.ZERO;
+        hasLoggedCurrentTrack = false;
+
+        playbackTimer = new Timeline(
+                new KeyFrame(Duration.seconds(1), event -> {
+                    playbackDuration = playbackDuration.add(Duration.seconds(1));
+
+                    // Log after 30 seconds of continuous playback
+                    if (playbackDuration.greaterThanOrEqualTo(Duration.seconds(30)) && !hasLoggedCurrentTrack) {
+                        logCurrentTrack();
+                        hasLoggedCurrentTrack = true;
+                    }
+                })
+        );
+        playbackTimer.setCycleCount(Timeline.INDEFINITE);
+        playbackTimer.play();
+    }
+
+    private void stopPlaybackTracking() {
+        if (playbackLogger != null) {
+            playbackLogger.stop();
+        }
+    }
+
+    private void resetPlaybackTracking() {
+        if (playbackTimer != null) {
+            playbackTimer.stop();
+        }
+        playbackDuration = Duration.ZERO;
+        hasLoggedCurrentTrack = false;
     }
 
 
@@ -1032,12 +1209,14 @@ public class MainHomeController {
             case PLAYING:
                 mediaPlayer.pause();
                 playPauseImage.setImage(playImg);
+                stopPlaybackTracking();
                 break;
             case PAUSED:
             case READY:
             case STOPPED:
                 mediaPlayer.play();
                 playPauseImage.setImage(pauseImg);
+                startPlaybackTracking();
                 break;
             default:
                 System.out.println("MediaPlayer status: " + mediaPlayer.getStatus());
@@ -1045,11 +1224,10 @@ public class MainHomeController {
     }
 
     private void disposeMediaPlayer() {
+        resetPlaybackTracking();
         MediaPlayer mediaPlayer = MusicPlayerManager.getMediaPlayer();
-
         if (mediaPlayer != null) {
             mediaPlayer.dispose();
-            mediaPlayer = null; // Reset the media player
         }
     }
 
@@ -1089,4 +1267,25 @@ public class MainHomeController {
 
     @FXML private void toggleMaximize() { stage.setMaximized(!stage.isMaximized()); }
 
+
+    //debuging
+    public void printAllMetadata(File file) {
+        try {
+            Media media = new Media(file.toURI().toString());
+            MediaPlayer tempPlayer = new MediaPlayer(media);
+
+            tempPlayer.setOnReady(() -> {
+                System.out.println("\nMetadata for: " + file.getName());
+                media.getMetadata().forEach((key, value) -> {
+                    System.out.println(key + ": " + value);
+                });
+                tempPlayer.dispose();
+            });
+
+            tempPlayer.play();
+            tempPlayer.stop();
+        } catch (Exception e) {
+            System.err.println("Error printing metadata: " + e.getMessage());
+        }
+    }
 }
