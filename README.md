@@ -2,7 +2,7 @@
 # SoundWave
 How to use:
 - Need Java 21 or later
-- Go to out/artifacts download the latest jar file
+- Go to out/artifacts download the latest version
 - Only for Windows devices
 
 # Change log a0.6.1
@@ -15,4 +15,5 @@ How to use:
 - Improved UI for create profile and settings
 - Added SQL dependencies
 
-
+# Author
+[@Mitja Filej](https://www.github.com/mit72)
