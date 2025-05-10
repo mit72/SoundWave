@@ -15,4 +15,5 @@ How to use:
 - Improved UI for create profile and settings
 - Added SQL dependencies
 
-
+#Author
+[@Mitja Filej](https://www.github.com/mit72)
