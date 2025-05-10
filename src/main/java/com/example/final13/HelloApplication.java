@@ -20,32 +20,33 @@ public class HelloApplication extends Application {
         BorderPane root;
 
         if (userProps != null && "true".equalsIgnoreCase(userProps.getProperty("Remember"))) {
-            // Load main view
             fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("main-home.fxml"));
             root = fxmlLoader.load();
 
             MainHomeController mainController = fxmlLoader.getController();
             int userId = Integer.parseInt(userProps.getProperty("UserID"));
             mainController.setCurrentUserId(userId);
+            mainController.setStage(stage);  // Set stage reference
 
-            // ✅ Setup custom resizing & dragging
-            HBox titleBar = (HBox) fxmlLoader.getNamespace().get("titleBar");
-            Border border = new Border();
-            border.setStage(stage, titleBar);
+            Scene scene = new Scene(root, 900, 500);
+            stage.setScene(scene);
+
+            // Now initialize the stage components
+            mainController.initializeStage();
 
         } else {
-            // Load login view
             fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
             root = fxmlLoader.load();
 
             HelloController controller = fxmlLoader.getController();
-            controller.setStage(stage);  // Already sets up Border
+            controller.setStage(stage);
+
+            Scene scene = new Scene(root, 900, 500);
+            stage.setScene(scene);
         }
 
-        Scene scene = new Scene(root, 900, 500);
         stage.setMinWidth(900);
         stage.setMinHeight(500);
-        stage.setScene(scene);
         stage.setTitle("SoundWave");
         stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         stage.show();

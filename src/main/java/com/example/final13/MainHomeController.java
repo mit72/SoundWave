@@ -1234,7 +1234,16 @@ public class MainHomeController {
 
     public void setStage(Stage stage) {
         this.stage = stage;
-        border.setStage(stage, titleBar);
+        // Don't try to access scene here - it's not set yet
+    }
+
+    public void initializeStage() {
+        if (stage != null && stage.getScene() != null) {
+            HBox titleBar = (HBox) stage.getScene().lookup("#titleBar");
+            if (titleBar != null) {
+                border.setStage(stage, titleBar);
+            }
+        }
     }
 
     @FXML public void closeWindow() { stage.close(); }
