@@ -98,6 +98,10 @@
                               <Insets right="20.0" />
                            </HBox.margin>
                         </Button>
+                        <Button mnemonicParsing="false" styleClass="redButtons" text="Sign out">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin></Button>
                         <Button mnemonicParsing="false" styleClass="redButtons" text="Delete profile" />
                      </children>
                      <VBox.margin>
