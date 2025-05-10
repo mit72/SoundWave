@@ -108,7 +108,11 @@ public class MainHomeController {
     private Timeline playbackTimer;
     private String currentlyPlayingTrackId = "";
 
-    private int currentUserId = 1; // This should come from your login system
+    private int currentUserId = -1; // This should come from your login system
+
+    public void setCurrentUserId(int id) {
+        this.currentUserId = id;
+    }
 
     @FXML
     public void initialize() {
@@ -498,9 +502,7 @@ public class MainHomeController {
                 @Override
                 protected void succeeded() {
                     super.succeeded();
-                    // Update UI (back on the JavaFX Application Thread)
-                    // Display the songs in the center view
-                    //displaySongList(playlist);
+
 
                     // Auto-play the first song if none is playing
                     if (currentTrackIndex == -1) {
@@ -1010,31 +1012,6 @@ public class MainHomeController {
         updateQueueView();
     }
 
-    /*
-    extra fallbacks
-
-    private void updateNowPlayingFallbacks(Media media) {
-        String fallbackTitle;
-        try {
-            String source = media.getSource();
-            String fileName = new File(new java.net.URI(source)).getName();
-            fallbackTitle = fileName.replaceFirst("[.][^.]+$", "");
-        } catch (Exception e) {
-            fallbackTitle = "Unknown Title";
-        }
-
-        String fallbackArtist = "Unknown Artist";
-        String fallbackAlbum = "Unknown Album";
-        Image fallbackImage = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/music-note.png")).toExternalForm());
-
-        if (titleLabel != null) titleLabel.setText(fallbackTitle);
-        if (artistLabel != null) artistLabel.setText(fallbackArtist);
-        if (albumLabel != null) albumLabel.setText(fallbackAlbum);
-        if (albumArtImageView != null) albumArtImageView.setImage(fallbackImage);
-    }
-
-    */
-
 
     //spremeni ui
     private void updateNowPlayingUI() {
@@ -1211,28 +1188,49 @@ public class MainHomeController {
 
     @FXML
     private void switchToSignIn(ActionEvent event) throws IOException {
-        disposeMediaPlayer();
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Sign Out");
+        confirmAlert.setHeaderText("Sign Out");
+        confirmAlert.setContentText("You will be signed out of your profile and will need to log in again");
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("sign-in.fxml"));
-        Parent root = loader.load();
+        ButtonType result = confirmAlert.showAndWait().orElse(ButtonType.CANCEL);
 
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        boolean isMaximized = stage.isMaximized();
-        double currentWidth = stage.getWidth();
-        double currentHeight = stage.getHeight();
+        if (result == ButtonType.OK) {
 
-        Scene newScene = new Scene(root, currentWidth, currentHeight);
-        stage.setScene(newScene);
+            String appDataPath = System.getenv("LOCALAPPDATA");
+            if (appDataPath != null) {
+                File file = new File(appDataPath, "SoundWave/userinfo.properties");
+                if (file.exists()) {
+                    boolean deleted = file.delete();
+                    if (!deleted) {
+                        System.err.println("Failed to delete userinfo.properties");
+                    }
+                }
+            }
 
-        SignInController controller = loader.getController();
-        controller.setStage(stage);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
+            Parent root = loader.load();
 
-        if (isMaximized) {
-            stage.setMaximized(true);
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+            boolean isMaximized = stage.isMaximized();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+            Scene newScene = new Scene(root, currentWidth, currentHeight);
+            stage.setScene(newScene);
+
+            HelloController controller = loader.getController();
+            controller.setStage(stage);
+
+            if (isMaximized) {
+                stage.setMaximized(true);
+            }
+
+            stage.show();
         }
-
-        stage.show();
     }
+
+
 
     public void setStage(Stage stage) {
         this.stage = stage;

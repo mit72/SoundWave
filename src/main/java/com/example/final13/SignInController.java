@@ -1,21 +1,19 @@
 package com.example.final13;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import java.sql.*;
 import java.io.IOException;
@@ -30,71 +28,42 @@ public class SignInController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField1;
     @FXML private PasswordField passwordField2;
+    @FXML private CheckBox rememberMe;
 
+    private boolean selectedState;
 
-    @FXML
-    private void createProfile() {
-
-        Connection connection = OracleConnection.getConnection();
-        Statement statement = null;
-        int usrID;
-        String geslo;
-        String stmnt;
-        String usr;
-
-
-        if (usernameField.getText().isEmpty() || passwordField1.getText().isEmpty() || passwordField2.getText().isEmpty()) {
-            showAlert("Error", "Missing information", "Please fill out every field.", AlertType.ERROR);
-            return;
-        }
-
-        if(usernameField.getText().length() < 3){
-            showAlert("Error", "Username length not long enough", "Username has to be longer than 3 letters.", AlertType.ERROR);
-            return;
-        }
-
-        if(!passwordCheck(passwordField1.getText())){
-            showAlert("Error","Password too weak", "Please use a letter, number and a special symbol in your password with the length of 8 characters or more.",AlertType.ERROR);
-            return;
-        }
-
-        if (!passwordField1.getText().equals(passwordField2.getText())) {
-            showAlert("Error", "Passwords do not match", "Please make sure both passwords are the same.", AlertType.ERROR);
-            return;
-        }
-
-        try{
-            geslo = StaticVars.getMd5(passwordField1.getText());
-            usrID = getID();
-            usr = usernameField.getText();
-
-            stmnt = "INSERT INTO mat_users (id, username, password) VALUES ("+usrID+", '"+usr+"', '"+geslo+"')";
-            assert connection != null;
-            statement = connection.createStatement();
-
-            connection.setAutoCommit(false);
-
-            statement.execute(stmnt);
-
-            connection.commit();
-
-        } catch (Exception e){
-            showAlert("Error","Database Error", "There was an unexpected database error",AlertType.ERROR);
-
-
-        } finally {
-            try{
-                assert statement != null;
-                statement.close();
-                connection.close();
-            } catch (Exception e){
-                showAlert("very wrong","very wrong","very wrong",AlertType.WARNING);
-            }
-            showAlert("Success","Success","Successfully created a profile",AlertType.CONFIRMATION);
-            clearFields();
-        }
-
+    public void initialize(){
+        rememberMe.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+            selectedState = isNowSelected;
+        });
     }
+
+    private void logUserToFile(String username, String encryptedPassword, int userId) {
+        String appDataPath = System.getenv("LOCALAPPDATA");
+        if (appDataPath == null) {
+            System.err.println("Cannot find LOCALAPPDATA path.");
+            return;
+        }
+
+        File logFile = new File(appDataPath, "SoundWave/userinfo.properties");
+
+        try {
+            // Create directories if they don't exist
+            logFile.getParentFile().mkdirs();
+
+            // Overwrite file (not append)
+            FileWriter writer = new FileWriter(logFile, false); // 'false' means overwrite
+            writer.write("UserID=" + userId + "\n");
+            writer.write("Username=" + username + "\n");
+            writer.write("Password=" + encryptedPassword + "\n");
+            writer.write("Remember=" + selectedState);
+            System.out.println(selectedState);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 
@@ -131,22 +100,6 @@ public class SignInController {
     }
 
 
-    //dobi id
-    private int getID() throws Exception {
-        final Connection connection = OracleConnection.getConnection();
-        Statement stmt = null;
-        ResultSet rs = null;
-        int id = 0;
-        assert connection != null;
-        stmt = connection.createStatement();
-        rs = stmt.executeQuery("SELECT max(id) FROM mat_users");
-        if (rs.next()) {
-            id = rs.getInt(1);
-        }
-        connection.close();
-        return id + 1;
-    }
-
     //spremeni stage in controler
     @FXML
     private void switchToHelloView(ActionEvent event) throws IOException {
@@ -174,27 +127,53 @@ public class SignInController {
 
     @FXML
     private void signIn(ActionEvent event) throws IOException {
+        // Example: You'd normally verify credentials here and get the userId
+        String username = usernameField.getText();
+        String password = passwordField1.getText();
+        String encryptedPassword = StaticVars.getMd5(password);
+
+        int userId = getUserIdFromDatabase(username, encryptedPassword); // <-- You implement this
+
+        if (userId == -1) {
+            showAlert("Login Failed", "Invalid credentials", "Please try again.", Alert.AlertType.ERROR);
+            return;
+        }
+        logUserToFile(username, encryptedPassword, userId);
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main-home.fxml"));
         Parent root = loader.load();
 
-        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        MainHomeController controller = loader.getController();
+        controller.setCurrentUserId(userId); // <-- Pass userId here
 
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         boolean isMaximized = stage.isMaximized();
         double currentWidth = stage.getWidth();
         double currentHeight = stage.getHeight();
         Scene newScene = new Scene(root, currentWidth, currentHeight);
         stage.setScene(newScene);
-
-
-        MainHomeController controller = loader.getController();
         controller.setStage(stage);
-
-        if (isMaximized) {
-            stage.setMaximized(true);
-        }
-
+        if (isMaximized) stage.setMaximized(true);
         stage.show();
     }
+
+    private int getUserIdFromDatabase(String username, String encryptedPassword) {
+        try (Connection conn = OracleConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT id FROM mat_users WHERE username = ? AND password = ?")) {
+            stmt.setString(1, username);
+            stmt.setString(2, encryptedPassword);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Not found
+    }
+
+
 
     //window resizing and main structure
     @FXML private Button exitButton;
