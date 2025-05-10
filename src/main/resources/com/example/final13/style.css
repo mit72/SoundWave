@@ -403,3 +403,19 @@
     -fx-shape: "M0,0 h20 a10,10 0 0 1 0,20 h-20 a10,10 0 0 1 0,-20 z";
     -fx-padding: 0;
 }
+
+.check-box .box{
+    -fx-background-color: transparent;
+    -fx-border-color: #89CFF0;
+    -fx-border-radius: 5;
+}
+
+.check-box{
+        -fx-text-fill: #89CFF0;
+}
+
+.check-box:selected .mark{
+    -fx-background-color: transparent;
+    -fx-border-color: #89CFF0;
+    -fx-shape: "M0,4 L3,7 L8,0";
+}
