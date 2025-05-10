@@ -696,6 +696,9 @@ public class MainHomeController {
         setupMediaPlayer();
         updateQueueView();
 
+        // Reset the logged flag when a new file starts playing
+        hasLoggedCurrentTrack = false;
+
         // Start playback tracking
         startPlaybackTracking();
 
@@ -716,23 +719,19 @@ public class MainHomeController {
             protected Void call() throws Exception {
                 SongInfo currentInfo = extractMetadata(currentlyPlayingFile);
 
-                // Check if this track was already logged recently
-                if (!wasRecentlyLogged(currentlyPlayingTrackId)) {
-                    // Use filename as title if metadata is missing
-                    String titleToLog = currentInfo.getTitle();
-                    if (titleToLog.startsWith("Unknown") || titleToLog.isEmpty()) {
-                        titleToLog = currentlyPlayingFile.getName()
-                                .replaceFirst("[.][^.]+$", ""); // Remove file extension
-                    }
-
-                    TrackLogger.logTrack(
-                            titleToLog,
-                            currentInfo.getArtist(),
-                            currentInfo.getAlbum(),
-                            currentUserId
-                    );
-                    rememberLoggedTrack(currentlyPlayingTrackId);
+                // Use filename as title if metadata is missing
+                String titleToLog = currentInfo.getTitle();
+                if (titleToLog.startsWith("Unknown") || titleToLog.isEmpty()) {
+                    titleToLog = currentlyPlayingFile.getName()
+                            .replaceFirst("[.][^.]+$", ""); // Remove file extension
                 }
+
+                TrackLogger.logTrack(
+                        titleToLog,
+                        currentInfo.getArtist(),
+                        currentInfo.getAlbum(),
+                        currentUserId
+                );
                 return null;
             }
         };
@@ -741,25 +740,6 @@ public class MainHomeController {
         hasLoggedCurrentTrack = true;
     }
 
-    // Add these to your controller class
-    private final Map<String, LocalDateTime> recentLogs = new ConcurrentHashMap<>();
-    private static final Duration LOG_COOLDOWN = Duration.seconds(30);
-
-    private boolean wasRecentlyLogged(String trackId) {
-        LocalDateTime lastLog = recentLogs.get(trackId);
-        return lastLog != null && lastLog.plus((TemporalAmount) LOG_COOLDOWN).isAfter(LocalDateTime.now());
-    }
-
-    private void rememberLoggedTrack(String trackId) {
-        recentLogs.put(trackId, LocalDateTime.now());
-
-        // Clean up old entries periodically
-        if (recentLogs.size() > 100) {
-            recentLogs.entrySet().removeIf(entry ->
-                    entry.getValue().plus((TemporalAmount) LOG_COOLDOWN).isBefore(LocalDateTime.now())
-            );
-        }
-    }
 
     private boolean isValidMetadata(SongInfo info) {
         return !info.getArtist().equals("Unknown Artist") &&
@@ -873,6 +853,7 @@ public class MainHomeController {
 
             player.setOnEndOfMedia(() -> {
                 playPauseImage.setImage(playImg);
+                resetPlaybackTracking();
                 playNext();
             });
 
@@ -917,8 +898,8 @@ public class MainHomeController {
                 new KeyFrame(Duration.seconds(1), event -> {
                     playbackDuration = playbackDuration.add(Duration.seconds(1));
 
-                    // Log after 30 seconds of continuous playback
-                    if (playbackDuration.greaterThanOrEqualTo(Duration.seconds(30)) && !hasLoggedCurrentTrack) {
+                    // Log after 10 seconds of continuous playback
+                    if (playbackDuration.greaterThanOrEqualTo(Duration.seconds(10)) && !hasLoggedCurrentTrack) {
                         logCurrentTrack();
                         hasLoggedCurrentTrack = true;
                     }
