@@ -13,43 +13,36 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="450.0" prefWidth="800.0" stylesheets="@style.css"
-            xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.example.final13.CreateProfileController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="800.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final13.CreateProfileController">
 
     <top>
-        <HBox fx:id="titleBar" alignment="TOP_RIGHT" prefHeight="30.0" prefWidth="800.0"
-              styleClass="bottomMain" BorderPane.alignment="CENTER">
+        <HBox fx:id="titleBar" alignment="TOP_RIGHT" maxHeight="-Infinity" minHeight="38.0" prefHeight="30.0" prefWidth="800.0" styleClass="bottomMain" BorderPane.alignment="CENTER">
             <children>
-                <AnchorPane fx:id="windowButtonsAnchor" prefHeight="38.0" prefWidth="214.0">
+                <AnchorPane fx:id="windowButtonsAnchor" prefHeight="37.0" prefWidth="214.0">
                     <children>
-                        <Button fx:id="minimizeButton" layoutX="96.0" styleClass="windowButtons"
-                                mnemonicParsing="false" onAction="#minimizeWindow">
+                        <Button fx:id="minimizeButton" layoutX="96.0" mnemonicParsing="false" onAction="#minimizeWindow" prefHeight="36.0" styleClass="windowButtons">
                             <graphic>
                                 <ImageView fitHeight="32.0" fitWidth="18.0" preserveRatio="true">
                                     <image>
-                                        <Image url="@img/window-minimize.png"/>
+                                        <Image url="@img/window-minimize.png" />
                                     </image>
                                 </ImageView>
                             </graphic>
                         </Button>
-                        <Button fx:id="windowedModeButton" layoutX="136.0" styleClass="windowButtons"
-                                mnemonicParsing="false" onAction="#toggleMaximize">
+                        <Button fx:id="windowedModeButton" layoutX="136.0" mnemonicParsing="false" onAction="#toggleMaximize" prefHeight="36.0" styleClass="windowButtons">
                             <graphic>
                                 <ImageView fitHeight="32.0" fitWidth="18.0" preserveRatio="true">
                                     <image>
-                                        <Image url="@img/square.png"/>
+                                        <Image url="@img/square.png" />
                                     </image>
                                 </ImageView>
                             </graphic>
                         </Button>
-                        <Button fx:id="exitButton" layoutX="176.0" styleClass="windowButtons"
-                                mnemonicParsing="false" onAction="#closeWindow">
+                        <Button fx:id="exitButton" layoutX="176.0" mnemonicParsing="false" onAction="#closeWindow" prefHeight="36.0" styleClass="windowButtons">
                             <graphic>
                                 <ImageView fitHeight="32.0" fitWidth="18.0" preserveRatio="true">
                                     <image>
-                                        <Image url="@img/cross.png"/>
+                                        <Image url="@img/cross.png" />
                                     </image>
                                 </ImageView>
                             </graphic>
@@ -67,10 +60,10 @@
                     <children>
                         <Label styleClass="creamyText" text="Create your profile and start listening!">
                             <font>
-                                <Font size="36.0"/>
+                                <Font size="36.0" />
                             </font>
                             <padding>
-                                <Insets bottom="30.0"/>
+                                <Insets bottom="30.0" />
                             </padding>
                         </Label>
                     </children>
@@ -80,43 +73,43 @@
                     <children>
                         <Label styleClass="creamyText" text="Username:">
                             <font>
-                                <Font name="System Bold" size="16.0"/>
+                                <Font name="System Bold" size="16.0" />
                             </font>
                         </Label>
-                        <TextField fx:id="usernameField" promptText="Username" styleClass="textField">
+                        <TextField fx:id="usernameField" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="200.0" promptText="Username" styleClass="textField">
                             <padding>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                             </padding>
                             <VBox.margin>
-                                <Insets bottom="20.0"/>
+                                <Insets bottom="20.0" />
                             </VBox.margin>
                         </TextField>
 
                         <Label styleClass="creamyText" text="Password:">
                             <font>
-                                <Font name="System Bold" size="16.0"/>
+                                <Font name="System Bold" size="16.0" />
                             </font>
                         </Label>
-                        <PasswordField fx:id="passwordField1" promptText="Password" styleClass="textField">
+                        <PasswordField fx:id="passwordField1" maxWidth="-Infinity" prefHeight="31.0" prefWidth="200.0" promptText="Password" styleClass="textField">
                             <padding>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                             </padding>
                             <VBox.margin>
-                                <Insets bottom="20.0"/>
+                                <Insets bottom="20.0" />
                             </VBox.margin>
                         </PasswordField>
 
                         <Label styleClass="creamyText" text="Repeat password:">
                             <font>
-                                <Font name="System Bold" size="16.0"/>
+                                <Font name="System Bold" size="16.0" />
                             </font>
                         </Label>
-                        <PasswordField fx:id="passwordField2" promptText="Repeat password" styleClass="textField">
+                        <PasswordField fx:id="passwordField2" maxWidth="-Infinity" prefHeight="31.0" prefWidth="200.0" promptText="Repeat password" styleClass="textField">
                             <padding>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                             </padding>
                             <VBox.margin>
-                                <Insets bottom="50.0"/>
+                                <Insets bottom="50.0" />
                             </VBox.margin>
                         </PasswordField>
                     </children>
@@ -124,22 +117,20 @@
 
                 <HBox alignment="CENTER" styleClass="hboxAlign">
                     <children>
-                        <Button fx:id="backButton" mnemonicParsing="false" onAction="#switchToHelloView"
-                                styleClass="buttonCommon" text="Cancel"/>
-                        <Button fx:id="CreateButton" mnemonicParsing="false" onAction="#createProfile"
-                                styleClass="buttonCommon" text="CREATE">
+                        <Button fx:id="backButton" mnemonicParsing="false" onAction="#switchToHelloView" styleClass="buttonCommon" text="Cancel" />
+                        <Button fx:id="CreateButton" mnemonicParsing="false" onAction="#createProfile" styleClass="buttonCommon" text="CREATE">
                             <font>
-                                <Font name="System Bold" size="12.0"/>
+                                <Font name="System Bold" size="12.0" />
                             </font>
                         </Button>
                     </children>
                     <padding>
-                        <Insets bottom="20.0"/>
+                        <Insets bottom="20.0" />
                     </padding>
                 </HBox>
             </children>
             <BorderPane.margin>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </BorderPane.margin>
         </VBox>
     </center>

@@ -383,6 +383,7 @@
     -fx-alignment: center-left;
     -fx-translate-y: 0;
     -fx-background-insets: 0;
+    -fx-text-fill: #D8C4B6;
 }
 
 .toggle-button:hover{
@@ -392,8 +393,9 @@
 }
 
 .toggle-button:selected {
-    -fx-background-color: #4CAF50;
+    -fx-background-color: #89CFF0;
     -fx-alignment: center-right;
+    -fx-text-fill: black;
 }
 
 .toggle-button .text {

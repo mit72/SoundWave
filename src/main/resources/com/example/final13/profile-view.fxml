@@ -27,13 +27,35 @@
             <VBox prefHeight="100.0" prefWidth="100.0">
                <children>
                   <Label styleClass="creamyText" text="Show songs with no metadata in charts" />
-                  <ToggleButton fx:id="toggleSwitch" mnemonicParsing="false" onAction="#handleToggle" prefHeight="20.0" prefWidth="40.0" />
+                  <ToggleButton fx:id="toggleSwitch" mnemonicParsing="false" onAction="#handleToggle" prefHeight="20.0" prefWidth="40.0" styleClass="creamyText" text="O">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font></ToggleButton>
                   <Label styleClass="creamyText" text="Private session (listening activity will not be recorded)">
                      <VBox.margin>
                         <Insets top="10.0" />
                      </VBox.margin>
                   </Label>
-                  <ToggleButton mnemonicParsing="false" prefHeight="20.0" prefWidth="40.0" />
+                  <ToggleButton fx:id="togglePrivateSession" mnemonicParsing="false" onAction="#handleTogglePrivateSession" prefHeight="20.0" prefWidth="40.0" styleClass="creamyText" text="O">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font></ToggleButton>
+                  <Label styleClass="creamyText" text="Change default music folder">
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Button mnemonicParsing="false" styleClass="blueButtons" text="Change">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </Button>
                </children>
                <VBox.margin>
                   <Insets top="10.0" />
@@ -52,7 +74,7 @@
                   <Line endX="-22.0" fill="#d8c4b6" startX="-100.0" stroke="#d8c4b6" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
-            <VBox prefHeight="110.0" prefWidth="558.0">
+            <VBox prefHeight="200.0" prefWidth="558.0">
                <children>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="558.0">
                      <children>
@@ -66,7 +88,7 @@
                               <Insets right="20.0" />
                            </HBox.margin>
                         </Label>
-                        <Button mnemonicParsing="false" styleClass="blueButtons" text="Change" />
+                        <Button mnemonicParsing="false" styleClass="blueButtons" text="Change username" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
@@ -79,7 +101,7 @@
                         <Button mnemonicParsing="false" styleClass="redButtons" text="Delete profile" />
                      </children>
                      <VBox.margin>
-                        <Insets bottom="10.0" />
+                        <Insets bottom="10.0" top="10.0" />
                      </VBox.margin>
                   </HBox>
                </children>
