@@ -5,6 +5,10 @@ How to use:
 - Go to out/artifacts download the latest version
 - Only for Windows devices
 
+# Change log a0.6.2
+
+- Fixed a bug where the border buttons would not work when being automatically signed in
+
 # Change log a0.6.1
 
 - Fixed a bug where track logging wouldn't work for the same track
