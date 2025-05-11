@@ -243,7 +243,7 @@ public class ProfileController {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Delete Profile");
         confirmAlert.setHeaderText("Permanently delete your profile?");
-        confirmAlert.setContentText("All your data will be deleted and cannot be recovered");
+        confirmAlert.setContentText("All your data will be deleted and cannot be recovered. THIS ACTION CANNOT BE UNDONE!");
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {

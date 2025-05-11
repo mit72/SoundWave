@@ -15,8 +15,7 @@ import javafx.scene.layout.VBox;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.prefs.Preferences;
 
 public class ChartController {
     @FXML private ListView<String> recentTracksList;
@@ -35,9 +34,12 @@ public class ChartController {
         loadData();
     }
 
+    public void reloadFilteredData() {
+        loadData(); // re-trigger chart with updated filters
+    }
+
     @FXML
     public void initialize() {
-        // Set up date range menu items
         for (MenuItem item : dateRangeMenu.getItems()) {
             item.setOnAction(event -> {
                 dateRangeMenu.setText(item.getText());
@@ -45,7 +47,6 @@ public class ChartController {
             });
         }
 
-        // Initialize chart
         xAxis.setLabel("Time Period");
         yAxis.setLabel("Songs Played");
         playsChart.setTitle("");
@@ -69,19 +70,17 @@ public class ChartController {
             case "Last 90 days" -> LocalDate.now().minusDays(90);
             case "Last 180 days" -> LocalDate.now().minusDays(180);
             case "Last 365 days" -> LocalDate.now().minusDays(365);
-            default -> LocalDate.MIN; // All time
+            default -> LocalDate.MIN;
         };
     }
 
     private void loadRecentTracks(LocalDate startDate) {
         ObservableList<String> recentTracks = FXCollections.observableArrayList();
-
         String sql = "SELECT track_title, artist_name, listen_date " +
                 "FROM mat_streams " +
                 "WHERE users_fk = ? " +
                 (startDate != LocalDate.MIN ? "AND listen_date >= ? " : "") +
-                "ORDER BY listen_date DESC " +
-                "FETCH FIRST 20 ROWS ONLY";
+                "ORDER BY listen_date DESC FETCH FIRST 20 ROWS ONLY";
 
         try (Connection conn = OracleConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -93,11 +92,16 @@ public class ChartController {
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                String track = String.format("%s - %s (%s)",
-                        rs.getString("artist_name"),
-                        rs.getString("track_title"),
-                        rs.getDate("listen_date").toLocalDate());
-                recentTracks.add(track);
+                String artist = rs.getString("artist_name");
+                String track = rs.getString("track_title");
+
+                boolean showUnknowns = Preferences.userNodeForPackage(ChartController.class)
+                        .getBoolean("showNoMetadata", true);
+
+                if (!showUnknowns && (artist == null || artist.toLowerCase().contains("unknown"))) continue;
+
+                recentTracks.add(String.format("%s - %s (%s)", artist, track,
+                        rs.getDate("listen_date").toLocalDate()));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -111,11 +115,9 @@ public class ChartController {
         series.setName("Songs Played");
 
         String sql = "SELECT TRUNC(listen_date) as day, COUNT(*) as play_count " +
-                "FROM mat_streams " +
-                "WHERE users_fk = ? " +
+                "FROM mat_streams WHERE users_fk = ? " +
                 (startDate != LocalDate.MIN ? "AND listen_date >= ? " : "") +
-                "GROUP BY TRUNC(listen_date) " +
-                "ORDER BY day";
+                "GROUP BY TRUNC(listen_date) ORDER BY day";
 
         try (Connection conn = OracleConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -152,64 +154,6 @@ public class ChartController {
         topArtistsList.setItems(topArtists);
     }
 
-    /* maybe try to only have the leading artist and combine their numbers
-
-    private void loadTopArtists(LocalDate startDate) {
-    ObservableList<String> topArtists = FXCollections.observableArrayList();
-
-    // First get all artist entries
-    String sql = "SELECT artist_name, COUNT(*) as play_count " +
-                 "FROM mat_streams " +
-                 "WHERE users_fk = ? " +
-                 (startDate != LocalDate.MIN ? "AND listen_date >= ? " : "") +
-                 "GROUP BY artist_name";
-
-    Map<String, Integer> artistPlayCounts = new HashMap<>();
-
-    try (Connection conn = OracleConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-        stmt.setInt(1, currentUserId);
-        if (startDate != LocalDate.MIN) {
-            stmt.setDate(2, Date.valueOf(startDate));
-        }
-
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            String artist = rs.getString("artist_name");
-            int plays = rs.getInt("play_count");
-
-            // Extract base artist name (before first slash)
-            String baseArtist = artist;
-            if (artist != null && artist.contains("/")) {
-                baseArtist = artist.substring(0, artist.indexOf("/")).trim();
-            }
-
-            // Combine play counts for same base artist
-            artistPlayCounts.merge(baseArtist, plays, Integer::sum);
-        }
-
-        // Convert to list and sort by play count (descending)
-        List<Map.Entry<String, Integer>> sortedArtists = new ArrayList<>(artistPlayCounts.entrySet());
-        sortedArtists.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-
-        // Take top 10
-        int rank = 1;
-        for (Map.Entry<String, Integer> entry : sortedArtists.stream().limit(10).toList()) {
-            topArtists.add(String.format("%d. %s (%d plays)",
-                rank++,
-                entry.getKey(),
-                entry.getValue()));
-        }
-
-    } catch (SQLException e) {
-        logger.log(Level.SEVERE, "Error loading top artists", e);
-    }
-
-    topArtistsList.setItems(topArtists);
-}
-     */
-
     private void loadTopAlbums(LocalDate startDate) {
         ObservableList<String> topAlbums = FXCollections.observableArrayList();
         loadTopItems("album_title", "Albums", topAlbums, startDate);
@@ -217,14 +161,16 @@ public class ChartController {
     }
 
     private void loadTopItems(String column, String type, ObservableList<String> items, LocalDate startDate) {
+        boolean showUnknowns = Preferences.userNodeForPackage(ChartController.class)
+                .getBoolean("showNoMetadata", true);
+
         String sql = String.format(
-                "SELECT %s, COUNT(*) as play_count " +
-                        "FROM mat_streams " +
-                        "WHERE users_fk = ? " +
-                        (startDate != LocalDate.MIN ? "AND listen_date >= ? " : "") +
-                        "GROUP BY %s " +
-                        "ORDER BY play_count DESC " +
-                        "FETCH FIRST 10 ROWS ONLY", column, column);
+                "SELECT %s, COUNT(*) as play_count FROM mat_streams " +
+                        "WHERE users_fk = ? %s GROUP BY %s ORDER BY play_count DESC FETCH FIRST 10 ROWS ONLY",
+                column,
+                (startDate != LocalDate.MIN ? "AND listen_date >= ?" : ""),
+                column
+        );
 
         try (Connection conn = OracleConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -237,10 +183,13 @@ public class ChartController {
             ResultSet rs = stmt.executeQuery();
             int rank = 1;
             while (rs.next()) {
-                items.add(String.format("%d. %s (%d plays)",
-                        rank++,
-                        rs.getString(column),
-                        rs.getInt("play_count")));
+                String value = rs.getString(column);
+
+                if (!showUnknowns && (value == null || value.toLowerCase().contains("unknown"))) {
+                    continue;
+                }
+
+                items.add(String.format("%d. %s (%d plays)", rank++, value, rs.getInt("play_count")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
