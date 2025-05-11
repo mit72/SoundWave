@@ -36,7 +36,7 @@
                               <Insets top="10.0" />
                            </VBox.margin>
                         </Label>
-                        <MenuButton fx:id="dateRangeMenu" mnemonicParsing="false" text="Select date range">
+                        <MenuButton fx:id="dateRangeMenu" mnemonicParsing="false" styleClass="invertedBlueButtons" text="Select date range">
                           <items>
                             <MenuItem mnemonicParsing="false" text="Last 7 days" />
                             <MenuItem mnemonicParsing="false" text="Last 30 days" />

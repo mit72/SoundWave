@@ -48,7 +48,7 @@ public class ChartController {
         // Initialize chart
         xAxis.setLabel("Time Period");
         yAxis.setLabel("Songs Played");
-        playsChart.setTitle("Listening Activity");
+        playsChart.setTitle("");
     }
 
     private void loadData() {
