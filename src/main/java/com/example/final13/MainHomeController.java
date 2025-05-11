@@ -1217,37 +1217,43 @@ public class MainHomeController {
         ButtonType result = confirmAlert.showAndWait().orElse(ButtonType.CANCEL);
 
         if (result == ButtonType.OK) {
+            // Clean up media player
+            disposeMediaPlayer();
 
+            // Clear user info
             String appDataPath = System.getenv("LOCALAPPDATA");
             if (appDataPath != null) {
                 File file = new File(appDataPath, "SoundWave/userinfo.properties");
                 if (file.exists()) {
-                    boolean deleted = file.delete();
-                    if (!deleted) {
-                        System.err.println("Failed to delete userinfo.properties");
-                    }
+                    file.delete();
                 }
             }
 
+            // Load the new scene
             FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            boolean isMaximized = stage.isMaximized();
-            double currentWidth = stage.getWidth();
-            double currentHeight = stage.getHeight();
-            Scene newScene = new Scene(root, currentWidth, currentHeight);
+            // Store window state
+            boolean wasMaximized = stage.isMaximized();
+            double width = stage.getWidth();
+            double height = stage.getHeight();
+
+            // Create new scene
+            Scene newScene = new Scene(root);
             stage.setScene(newScene);
+
+            // Restore window state
+            if (wasMaximized) {
+                stage.setMaximized(true);
+            } else {
+                stage.setWidth(width);
+                stage.setHeight(height);
+            }
 
             HelloController controller = loader.getController();
             controller.setStage(stage);
-
-            if (isMaximized) {
-                stage.setMaximized(true);
-            }
-
-            stage.show();
         }
     }
 

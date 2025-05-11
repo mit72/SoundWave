@@ -3,6 +3,7 @@ package com.example.final13;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -127,12 +128,11 @@ public class SignInController {
 
     @FXML
     private void signIn(ActionEvent event) throws IOException {
-        // Example: You'd normally verify credentials here and get the userId
         String username = usernameField.getText();
         String password = passwordField1.getText();
         String encryptedPassword = StaticVars.getMd5(password);
 
-        int userId = getUserIdFromDatabase(username, encryptedPassword); // <-- You implement this
+        int userId = getUserIdFromDatabase(username, encryptedPassword);
 
         if (userId == -1) {
             showAlert("Login Failed", "Invalid credentials", "Please try again.", Alert.AlertType.ERROR);
@@ -144,17 +144,29 @@ public class SignInController {
         Parent root = loader.load();
 
         MainHomeController controller = loader.getController();
-        controller.setCurrentUserId(userId); // <-- Pass userId here
+        controller.setCurrentUserId(userId);
 
-        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        boolean isMaximized = stage.isMaximized();
-        double currentWidth = stage.getWidth();
-        double currentHeight = stage.getHeight();
-        Scene newScene = new Scene(root, currentWidth, currentHeight);
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+        // Store window state
+        boolean wasMaximized = stage.isMaximized();
+        double width = stage.getWidth();
+        double height = stage.getHeight();
+
+        // Create new scene
+        Scene newScene = new Scene(root);
         stage.setScene(newScene);
+
+        // Restore window state
+        if (wasMaximized) {
+            stage.setMaximized(true);
+        } else {
+            stage.setWidth(width);
+            stage.setHeight(height);
+        }
+
         controller.setStage(stage);
-        if (isMaximized) stage.setMaximized(true);
-        stage.show();
+        controller.initializeStage(); // Explicitly initialize stage
     }
 
     private int getUserIdFromDatabase(String username, String encryptedPassword) {
