@@ -290,7 +290,7 @@ public class MainHomeController {
         });
     }
 
-
+/*
     public void showPlaylistView(Playlist playlist) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final13/playlist-view.fxml"));
@@ -305,7 +305,7 @@ public class MainHomeController {
             //e.printStackTrace();
         }
     }
-
+*/
     private void loadViewQue(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -418,7 +418,7 @@ public class MainHomeController {
         mainBorderPane.setCenter(initialCenterContent);
         currentView = initialCenterContent;
     }
-
+/*
     @FXML
     private void loadLibraryView() {
         try {
@@ -437,7 +437,7 @@ public class MainHomeController {
         }
 
     }
-
+*/
     // Add method to restore original view if needed
     public void restoreInitialView() {
         mainBorderPane.setCenter(initialCenterContent);
