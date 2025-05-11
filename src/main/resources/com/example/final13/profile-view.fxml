@@ -51,7 +51,7 @@
                         <Insets top="10.0" />
                      </VBox.margin>
                   </Label>
-                  <Button mnemonicParsing="false" styleClass="blueButtons" text="Change">
+                  <Button fx:id="changeDefaultFolder" mnemonicParsing="false" onAction="#handleChangeDefaultFolder" styleClass="blueButtons" text="Change">
                      <VBox.margin>
                         <Insets top="5.0" />
                      </VBox.margin>
@@ -83,26 +83,26 @@
                               <Insets right="20.0" />
                            </HBox.margin>
                         </Label>
-                        <Label styleClass="creamyText" text="usrname">
+                        <Label fx:id="usernameLabel" styleClass="creamyText" text="usrname">
                            <HBox.margin>
                               <Insets right="20.0" />
                            </HBox.margin>
                         </Label>
-                        <Button mnemonicParsing="false" styleClass="blueButtons" text="Change username" />
+                        <Button fx:id="chnageUsername" mnemonicParsing="false" onAction="#handleChangeUsername" styleClass="blueButtons" text="Change username" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Button mnemonicParsing="false" styleClass="blueButtons" text="Change password">
+                        <Button fx:id="changePassword" mnemonicParsing="false" onAction="#handleChangePassword" styleClass="blueButtons" text="Change password">
                            <HBox.margin>
                               <Insets right="20.0" />
                            </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" styleClass="redButtons" text="Sign out">
+                        <Button fx:id="singOut" mnemonicParsing="false" onAction="#switchToSignIn" styleClass="redButtons" text="Sign out">
                            <HBox.margin>
                               <Insets right="20.0" />
                            </HBox.margin></Button>
-                        <Button mnemonicParsing="false" styleClass="redButtons" text="Delete profile" />
+                        <Button fx:id="deleteProfile" mnemonicParsing="false" onAction="#handleDeleteProfile" styleClass="redButtons" text="Delete profile" />
                      </children>
                      <VBox.margin>
                         <Insets bottom="10.0" top="10.0" />

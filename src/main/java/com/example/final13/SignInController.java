@@ -12,12 +12,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Alert.AlertType;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+
+import java.io.*;
 
 import java.sql.*;
 import java.io.IOException;
+import java.util.Properties;
 
 
 public class SignInController {
@@ -39,6 +39,7 @@ public class SignInController {
         });
     }
 
+    // In SignInController.java
     private void logUserToFile(String username, String encryptedPassword, int userId) {
         String appDataPath = System.getenv("LOCALAPPDATA");
         if (appDataPath == null) {
@@ -52,14 +53,24 @@ public class SignInController {
             // Create directories if they don't exist
             logFile.getParentFile().mkdirs();
 
-            // Overwrite file (not append)
-            FileWriter writer = new FileWriter(logFile, false); // 'false' means overwrite
-            writer.write("UserID=" + userId + "\n");
-            writer.write("Username=" + username + "\n");
-            writer.write("Password=" + encryptedPassword + "\n");
-            writer.write("Remember=" + selectedState);
-            System.out.println(selectedState);
-            writer.close();
+            // Read existing properties if file exists
+            Properties props = new Properties();
+            if (logFile.exists()) {
+                try (FileInputStream in = new FileInputStream(logFile)) {
+                    props.load(in);
+                }
+            }
+
+            // Update user info
+            props.setProperty("UserID", String.valueOf(userId));
+            props.setProperty("Username", username);
+            props.setProperty("Password", encryptedPassword);
+            props.setProperty("Remember", String.valueOf(selectedState));
+
+            // Write all properties back to file
+            try (FileOutputStream out = new FileOutputStream(logFile)) {
+                props.store(out, "SoundWave User Info");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

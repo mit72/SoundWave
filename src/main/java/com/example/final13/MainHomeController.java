@@ -27,6 +27,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
+import java.io.FileInputStream;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
@@ -144,6 +145,27 @@ public class MainHomeController {
             durationColumn.setPrefWidth(tableWidth * 0.10); // 10%
         });
 
+        String appDataPath = System.getenv("LOCALAPPDATA");
+        if (appDataPath != null) {
+            File userInfoFile = new File(appDataPath, "SoundWave/userinfo.properties");
+            if (userInfoFile.exists()) {
+                try (FileInputStream in = new FileInputStream(userInfoFile)) {
+                    Properties props = new Properties();
+                    props.load(in);
+                    String musicFolderPath = props.getProperty("MusicFolder");
+                    if (musicFolderPath != null && !musicFolderPath.isEmpty()) {
+                        File musicFolder = new File(musicFolderPath);
+                        if (musicFolder.exists() && musicFolder.isDirectory()) {
+                            loadMusicFromFolder(musicFolder);
+                            return;
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         File defaultMusicFolder = new File(System.getProperty("user.home") + "/Music");
 
         // If the folder exists and is a directory, load it
@@ -252,7 +274,19 @@ public class MainHomeController {
 
         profileButton.setOnAction(e -> {
             setActiveButton(profileButton);
-            loadView("/com/example/final13/profile-view.fxml");
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final13/profile-view.fxml"));
+                Parent view = loader.load();
+
+                ProfileController profileController = loader.getController();
+                profileController.setCurrentUser(currentUserId, /* currentUsername */ ""); // You can add the actual username if you store it
+                profileController.setMainController(this); // ✅ pass self
+
+                mainBorderPane.setCenter(view);
+            } catch (IOException ex) {
+                showHomeView();
+                setActiveButton(homeButton);
+            }
         });
     }
 
@@ -312,7 +346,7 @@ public class MainHomeController {
     }
 
 
-
+/*
     private void loadView(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -328,7 +362,7 @@ public class MainHomeController {
             setActiveButton(homeButton);
         }
     }
-
+*/
     @FXML
     private void loadViewChart(String fxmlPath) {
         try {
@@ -1199,7 +1233,7 @@ public class MainHomeController {
         }
     }
 
-    private void disposeMediaPlayer() {
+    void disposeMediaPlayer() {
         resetPlaybackTracking();
         MediaPlayer mediaPlayer = MusicPlayerManager.getMediaPlayer();
         if (mediaPlayer != null) {
