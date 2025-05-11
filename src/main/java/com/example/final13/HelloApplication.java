@@ -3,11 +3,13 @@ package com.example.final13;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.Properties;
 
 public class HelloApplication extends Application {
@@ -44,6 +46,13 @@ public class HelloApplication extends Application {
             Scene scene = new Scene(root, 900, 500);
             stage.setScene(scene);
         }
+
+        stage.getIcons().add(
+                new Image(Objects.requireNonNull(
+                        HelloApplication.class.getResourceAsStream("/com/example/final13/img/icon.png"))
+                )
+        );
+
 
         stage.setMinWidth(900);
         stage.setMinHeight(500);
