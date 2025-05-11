@@ -7,6 +7,11 @@ How to use:
 
 # Change log a0.6.2
 
+- Added functionality for charts view
+- Improved charts UI
+
+# Change log a0.6.2
+
 - Fixed a bug where the border buttons would not work when being automatically signed in
 
 # Change log a0.6.1
