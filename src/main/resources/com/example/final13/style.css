@@ -419,3 +419,38 @@
     -fx-border-color: #89CFF0;
     -fx-shape: "M0,4 L3,7 L8,0";
 }
+
+.chart {
+    -fx-background-color: transparent;
+    -fx-legend-visible: false;
+}
+
+.chart-content {
+    -fx-background-color: transparent;
+}
+
+.axis-label {
+    -fx-text-fill: #d8c4b6;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: #555;
+}
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: #555;
+}
+
+.chart-alternative-row-fill {
+    -fx-fill: #333;
+    -fx-stroke: transparent;
+}
+
+.default-color0.chart-bar {
+    -fx-bar-fill: #89CFF0;
+}
+
+.scroll-pane{
+    -fx-translate-y: 0;
+    -fx-background-insets: 0;
+}
