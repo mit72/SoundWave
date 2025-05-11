@@ -87,30 +87,11 @@ public class SignInController {
         alert.showAndWait();
     }
 
-    private boolean passwordCheck(String pass){
-        boolean letr = false,numbr = false,othr = false;
-        if(pass.length() < 8)
-            return false;
-        for (int i = 0; i < pass.length(); i++) {
-            char tmp = pass.charAt(i);
-            if(tmp >= 'a' && tmp <= 'z'){
-                letr = true;
-            }
-            else if(tmp >= '0' && tmp <= '9'){
-                numbr = true;
-            } else {
-                othr = true;
-            }
-        }
-        return letr && othr && numbr;
-    }
-
     private void clearFields(){
         usernameField.setText("");
         passwordField1.setText("");
         passwordField2.setText("");
     }
-
 
     //spremeni stage in controler
     @FXML
@@ -147,6 +128,7 @@ public class SignInController {
 
         if (userId == -1) {
             showAlert("Login Failed", "Invalid credentials", "Please try again.", Alert.AlertType.ERROR);
+            clearFields();
             return;
         }
         logUserToFile(username, encryptedPassword, userId);

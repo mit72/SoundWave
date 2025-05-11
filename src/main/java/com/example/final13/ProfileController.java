@@ -168,7 +168,6 @@ public class ProfileController {
     }
 
     private boolean updateUsernameInDatabase(String newUsername) {
-        // Implement database update logic here
         // Return true if successful, false otherwise
         try (Connection conn = OracleConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(

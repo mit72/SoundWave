@@ -28,14 +28,11 @@ import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
 import java.io.FileInputStream;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAmount;
 import java.util.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -119,6 +116,7 @@ public class MainHomeController {
     public void initialize() {
         // Store initial center content
         initialCenterContent = (Parent) mainBorderPane.getCenter();
+        restoreInitialView();
         bindSliderFill(timeSlider);
         bindSliderFill(audioSlider);
         timeSlider.setDisable(true);
@@ -217,14 +215,6 @@ public class MainHomeController {
             @Override
             protected void succeeded() {
                 super.succeeded();
-                //displaySongList(playlist);
-
-                /*Auto-play the first song if none is playing good to have? but starts playing on app start
-                if (currentTrackIndex == -1) {
-                    currentTrackIndex = 0;
-                    playCurrentTrack();
-                }
-                */
             }
 
             @Override
@@ -244,23 +234,6 @@ public class MainHomeController {
             mainBorderPane.setCenter(initialCenterContent);
             setActiveButton(homeButton);
         });
-
-        /*
-        libraryButton.setOnAction(event -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final13/library-view.fxml"));
-                Parent libraryView = loader.load();
-
-                LibraryController libraryController = loader.getController();
-                libraryController.setMainController(this);
-
-                mainBorderPane.setCenter(libraryView);
-                setActiveButton(libraryButton);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        */
 
         queueButton.setOnAction(e -> {
             setActiveButton(queueButton);
@@ -290,22 +263,6 @@ public class MainHomeController {
         });
     }
 
-/*
-    public void showPlaylistView(Playlist playlist) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final13/playlist-view.fxml"));
-            Parent playlistView = loader.load();
-
-            PlaylistController controller = loader.getController();
-            controller.setMainController(this);
-            controller.initializeWithPlaylist(playlist);
-
-            mainBorderPane.setCenter(playlistView);
-        } catch (IOException e) {
-            //e.printStackTrace();
-        }
-    }
-*/
     private void loadViewQue(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -345,24 +302,6 @@ public class MainHomeController {
         }
     }
 
-
-/*
-    private void loadView(String fxmlPath) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent view = loader.load();
-
-
-            mainBorderPane.setCenter(view);
-            currentView = view;
-
-        } catch (IOException e) {
-            //e.printStackTrace();
-            showHomeView();
-            setActiveButton(homeButton);
-        }
-    }
-*/
     @FXML
     private void loadViewChart(String fxmlPath) {
         try {
@@ -379,22 +318,6 @@ public class MainHomeController {
             currentView = view;
         } catch (IOException e) {
             e.printStackTrace();
-            showHomeView();
-            setActiveButton(homeButton);
-        }
-    }
-
-    private void loadViewLib(String fxmlPath) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));  // <-- Use the parameter
-            ScrollPane view = loader.load();
-            mainBorderPane.setCenter(view);
-
-            view.prefWidthProperty().bind(mainBorderPane.widthProperty());
-            view.prefHeightProperty().bind(mainBorderPane.heightProperty());
-
-        } catch (IOException e) {
-            //e.printStackTrace();
             showHomeView();
             setActiveButton(homeButton);
         }
@@ -418,26 +341,7 @@ public class MainHomeController {
         mainBorderPane.setCenter(initialCenterContent);
         currentView = initialCenterContent;
     }
-/*
-    @FXML
-    private void loadLibraryView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final13/library-view.fxml"));
-            Parent libraryView = loader.load();
-            mainBorderPane.setCenter(libraryView);
 
-            // Get controller if needed
-            LibraryController libraryController = loader.getController();
-            // libraryController.setMainController(this);
-
-        } catch (IOException e) {
-            //e.printStackTrace();
-            // Optionally revert to initial content on error
-            mainBorderPane.setCenter(initialCenterContent);
-        }
-
-    }
-*/
     // Add method to restore original view if needed
     public void restoreInitialView() {
         mainBorderPane.setCenter(initialCenterContent);
@@ -650,92 +554,7 @@ public class MainHomeController {
 
         return new SongInfo(metadata[0], metadata[1], metadata[2], metadata[3], file.getAbsolutePath());
     }
-/*
-    private void loadSongsFromFolder(File folder) {
-        File[] files = folder.listFiles((dir, name) ->
-                name.toLowerCase().endsWith(".mp3") ||
-                        name.toLowerCase().endsWith(".wav") ||
-                        name.toLowerCase().endsWith(".aac")
-        );
 
-        if (files != null && files.length > 0) {
-            playlist.clear();
-            playlist.addAll(Arrays.asList(files));
-
-            if (isShuffleEnabled) {
-                shuffledPlaylist = new ArrayList<>(playlist);
-                Collections.shuffle(shuffledPlaylist);
-            }
-
-            // Display the songs in the center view
-            //displaySongList(playlist);
-
-            // Auto-play the first song if none is playing
-            if (currentTrackIndex == -1) {
-                currentTrackIndex = 0;
-                playCurrentTrack();
-            }
-        }
-    }
-
-    private void displaySongList(List<File> songs) {
-        VBox songsContainer = new VBox(10);
-        songsContainer.setPadding(new Insets(20));
-        songsContainer.setAlignment(Pos.TOP_CENTER);
-
-        Label titleLabel = new Label("Songs in Folder");
-        titleLabel.getStyleClass().add("creamyText");
-        titleLabel.setFont(new Font(18));
-
-        songsContainer.getChildren().add(titleLabel);
-
-        for (int i = 0; i < songs.size(); i++) {
-            File song = songs.get(i);
-            HBox songEntry = createSongEntry(song, i);
-            songsContainer.getChildren().add(songEntry);
-        }
-
-        ScrollPane scrollPane = new ScrollPane(songsContainer);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
-        mainBorderPane.setCenter(scrollPane);
-    }
-
-    private HBox createSongEntry(File song, int index) {
-        HBox entry = new HBox(10);
-        entry.setAlignment(Pos.CENTER_LEFT);
-        entry.setPadding(new Insets(5, 10, 5, 10));
-        entry.getStyleClass().add("songEntry");
-
-        // Add hover effect
-        entry.setOnMouseEntered(e -> entry.setStyle("-fx-background-color: #333;"));
-        entry.setOnMouseExited(e -> entry.setStyle("-fx-background-color: transparent;"));
-
-        // Track number
-        Label numberLabel = new Label((index + 1) + ".");
-        numberLabel.getStyleClass().add("creamyText");
-        numberLabel.setMinWidth(30);
-
-        // Song name (without extension)
-        String fileName = song.getName();
-        String songName = fileName.substring(0, fileName.lastIndexOf('.'));
-        Label nameLabel = new Label(songName);
-        nameLabel.getStyleClass().add("creamyText");
-        nameLabel.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(nameLabel, Priority.ALWAYS);
-
-        entry.getChildren().addAll(numberLabel, nameLabel);
-
-        // Set click handler to play the song
-        entry.setOnMouseClicked(e -> {
-            currentTrackIndex = index;
-            playFile(song);
-        });
-
-        return entry;
-    }
-*/
     private void playCurrentTrack() {
         if (currentTrackIndex >= 0 && currentTrackIndex < playlist.size()) {
             File fileToPlay = playlist.get(currentTrackIndex);
@@ -795,14 +614,6 @@ public class MainHomeController {
 
         new Thread(loggingTask).start();
         hasLoggedCurrentTrack = true;
-    }
-
-
-    private boolean isValidMetadata(SongInfo info) {
-        return !info.getArtist().equals("Unknown Artist") &&
-                !info.getAlbum().equals("Unknown Album") &&
-                !info.getTitle().startsWith("Unknown") &&
-                !info.getDuration().equals("Unknown");
     }
 
     private void bindSliderFill(Slider slider) {
@@ -1314,7 +1125,7 @@ public class MainHomeController {
     @FXML private void toggleMaximize() { stage.setMaximized(!stage.isMaximized()); }
 
 
-    //debuging
+    //debuging method
     public void printAllMetadata(File file) {
         try {
             Media media = new Media(file.toURI().toString());
