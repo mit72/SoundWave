@@ -5,24 +5,14 @@ How to use:
 - Go to out/artifacts download the latest version
 - Only for Windows devices
 
-# Change log a0.6.2
-
-- Added functionality for charts view
-- Improved charts UI
-
-# Change log a0.6.2
-
-- Fixed a bug where the border buttons would not work when being automatically signed in
-
-# Change log a0.6.1
-
-- Fixed a bug where track logging wouldn't work for the same track
-- Added remember me on sign in
-- Added functionality for the sign-out button
-- Automatic sign in
-- Current user data is now saved for automatic sign in
-- Improved UI for create profile and settings
-- Added SQL dependencies
-
+# Change log b0.1.0 BETA RELEASE!
+- Added complete functionality for settings and profile view
+- - You can now toggle if you want to see tracks with no metadata or not on charts
+- - Private session toggle will now allow you to not track your music activity
+- - You can now change the default music folder that will open upon application start (only if you have remember me on)
+- - Now you can change the username or password
+- - You can now sign out and delete your profile in the settings 
+- Fixed a bug where you wouldn't be able to resize the window when logging out and singing in
+    
 # Author
 [@Mitja Filej](https://www.github.com/mit72)
