@@ -8,6 +8,7 @@ module com.example.final13 {
     requires java.desktop;
     requires java.sql;
     requires javafx.media;
+    requires java.prefs;
 
     opens com.example.final13 to javafx.fxml;
     exports com.example.final13;
