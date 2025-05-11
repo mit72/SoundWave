@@ -247,7 +247,7 @@ public class MainHomeController {
 
         chartsButton.setOnAction(e -> {
             setActiveButton(chartsButton);
-            loadView("/com/example/final13/chart-view.fxml");
+            loadViewChart("/com/example/final13/chart-view.fxml");
         });
 
         profileButton.setOnAction(e -> {
@@ -324,6 +324,27 @@ public class MainHomeController {
 
         } catch (IOException e) {
             //e.printStackTrace();
+            showHomeView();
+            setActiveButton(homeButton);
+        }
+    }
+
+    @FXML
+    private void loadViewChart(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent view = loader.load();
+
+            // If loading charts view, set the user ID
+            if (fxmlPath.equals("/com/example/final13/chart-view.fxml")) {
+                ChartController controller = loader.getController();
+                controller.setCurrentUserId(currentUserId);
+            }
+
+            mainBorderPane.setCenter(view);
+            currentView = view;
+        } catch (IOException e) {
+            e.printStackTrace();
             showHomeView();
             setActiveButton(homeButton);
         }
