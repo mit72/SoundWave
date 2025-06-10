@@ -46,22 +46,45 @@ public class ProfileController {
 
     public void setMainController(MainHomeController controller) {
         this.mainController = controller;
+        // Sync the toggle button with the current log state when controller is set
+        if (mainController != null) {
+            boolean isLoggingEnabled = mainController.getLog();
+            togglePrivateSession.setSelected(!isLoggingEnabled); // Invert since private session means no logging
+            updateToggleButtonText(togglePrivateSession);
+        }
     }
 
     public void initialize() {
         // Load saved preferences
         toggleSwitch.setSelected(prefs.getBoolean("showNoMetadata", false));
-        togglePrivateSession.setSelected(prefs.getBoolean("privateSession", false));
+
+        // Initialize private session toggle from preferences but override if mainController is set
+        boolean privateSessionFromPrefs = prefs.getBoolean("privateSession", false);
+        togglePrivateSession.setSelected(privateSessionFromPrefs);
+
+        // If mainController is already set, sync with its log state
+        if (mainController != null) {
+            boolean isLoggingEnabled = mainController.getLog();
+            togglePrivateSession.setSelected(!isLoggingEnabled);
+            // Update preference to match
+            prefs.putBoolean("privateSession", !isLoggingEnabled);
+        }
 
         // Update toggle button text
         updateToggleButtonText(toggleSwitch);
         updateToggleButtonText(togglePrivateSession);
 
-        // Add listeners to maintain button text
+        // Add listeners
         toggleSwitch.selectedProperty().addListener((obs, oldVal, newVal) ->
                 updateToggleButtonText(toggleSwitch));
-        togglePrivateSession.selectedProperty().addListener((obs, oldVal, newVal) ->
-                updateToggleButtonText(togglePrivateSession));
+        togglePrivateSession.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            updateToggleButtonText(togglePrivateSession);
+            if (mainController != null) {
+                mainController.setLog(!newVal);
+            }
+            prefs.putBoolean("privateSession", newVal);
+        });
+
     }
 
     public void setCurrentUser(int userId, String username) {
@@ -90,7 +113,12 @@ public class ProfileController {
     private void handleTogglePrivateSession() {
         boolean privateSession = togglePrivateSession.isSelected();
         prefs.putBoolean("privateSession", privateSession);
-        // Add logic to enable/disable activity tracking
+
+        // Update the logging status in MainHomeController
+        if (mainController != null) {
+            mainController.setLoggingEnabled(!privateSession); // Invert since private session means no logging
+            mainController.setLog(!privateSession); // Also update the internal log flag
+        }
     }
 
     @FXML

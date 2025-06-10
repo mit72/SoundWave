@@ -105,11 +105,24 @@ public class MainHomeController {
     private boolean hasLoggedCurrentTrack = false;
     private Timeline playbackTimer;
     private String currentlyPlayingTrackId = "";
+    private boolean log = true;
 
     private int currentUserId = -1; // This should come from your login system
 
     public void setCurrentUserId(int id) {
         this.currentUserId = id;
+    }
+
+    public void setLog(boolean log){
+        this.log = log;
+    }
+
+    public boolean getLog(){
+        return log;
+    }
+
+    public void setLoggingEnabled(boolean enabled) {
+        this.log = enabled;
     }
 
     @FXML
@@ -252,8 +265,8 @@ public class MainHomeController {
                 Parent view = loader.load();
 
                 ProfileController profileController = loader.getController();
-                profileController.setCurrentUser(currentUserId, /* currentUsername */ ""); // You can add the actual username if you store it
-                profileController.setMainController(this); // ✅ pass self
+                profileController.setCurrentUser(currentUserId, "");
+                profileController.setMainController(this);
 
                 mainBorderPane.setCenter(view);
             } catch (IOException ex) {
@@ -587,7 +600,8 @@ public class MainHomeController {
     }
 
     private void logCurrentTrack() {
-        if (currentlyPlayingFile == null || hasLoggedCurrentTrack) return;
+        if (!log || currentlyPlayingFile == null || hasLoggedCurrentTrack) return;
+
 
         // Create task for metadata extraction and logging
         Task<Void> loggingTask = new Task<>() {

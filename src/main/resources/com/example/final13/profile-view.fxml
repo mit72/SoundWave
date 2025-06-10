@@ -78,26 +78,21 @@
                <children>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="558.0">
                      <children>
-                        <Label styleClass="creamyText" text="Username:">
-                           <HBox.margin>
-                              <Insets right="20.0" />
-                           </HBox.margin>
-                        </Label>
-                        <Label fx:id="usernameLabel" styleClass="creamyText" text="usrname">
-                           <HBox.margin>
-                              <Insets right="20.0" />
-                           </HBox.margin>
-                        </Label>
                         <Button fx:id="chnageUsername" mnemonicParsing="false" onAction="#handleChangeUsername" styleClass="blueButtons" text="Change username" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
-                     <children>
+                        <Label fx:id="usernameLabel" styleClass="creamyText">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                        </Label>
                         <Button fx:id="changePassword" mnemonicParsing="false" onAction="#handleChangePassword" styleClass="blueButtons" text="Change password">
                            <HBox.margin>
                               <Insets right="20.0" />
                            </HBox.margin>
                         </Button>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                     <children>
                         <Button fx:id="singOut" mnemonicParsing="false" onAction="#switchToSignIn" styleClass="redButtons" text="Sign out">
                            <HBox.margin>
                               <Insets right="20.0" />
