@@ -321,7 +321,7 @@ public class MainHomeController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent view = loader.load();
 
-            // If loading charts view, set the user ID
+
             if (fxmlPath.equals("/com/example/final13/chart-view.fxml")) {
                 ChartController controller = loader.getController();
                 controller.setCurrentUserId(currentUserId);
