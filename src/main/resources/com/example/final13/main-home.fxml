@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
 <BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final13.MainHomeController">
@@ -33,7 +34,8 @@
                         </ImageView>
                      </graphic>
                   </Button>
-               </children></HBox>
+               </children>
+            </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                       <AnchorPane fx:id="windowButtonsAnchor" prefHeight="38.0" prefWidth="214.0">
@@ -87,10 +89,28 @@
     <center>
         <VBox fx:id="songListViewContainer" alignment="TOP_CENTER" spacing="10" BorderPane.alignment="CENTER">
             <children>
-                <HBox alignment="CENTER" spacing="20">
-               <Button fx:id="addFilesButton" mnemonicParsing="false" onAction="#handleAddFiles" styleClass="blueButtons" text="Add Files" />
-                    <Button fx:id="fileSelect" onAction="#handleFileSelect" styleClass="blueButtons" text="Open File" />
-                    <Button fx:id="folderSelect" onAction="#handleFolderSelect" styleClass="blueButtons" text="Open Folder" />
+                <HBox alignment="BOTTOM_LEFT" spacing="20">
+               <VBox HBox.hgrow="ALWAYS">
+                  <children>
+                     <Label styleClass="creamyText" text="HOME" textFill="#d8c4b6">
+                        <font>
+                           <Font name="System Bold" size="20.0" />
+                        </font>
+                     </Label>
+                     <Line endX="-35.5" startX="-100.0" stroke="#d8c4b6" VBox.vgrow="ALWAYS">
+                        <VBox.margin>
+                           <Insets bottom="10.0" />
+                        </VBox.margin>
+                     </Line>
+                     <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                        <children>
+                           <Button fx:id="addFilesButton" mnemonicParsing="false" onAction="#handleAddFiles" styleClass="blueButtons" text="Add Files" />
+                                <Button fx:id="fileSelect" onAction="#handleFileSelect" styleClass="blueButtons" text="Open File" />
+                                <Button fx:id="folderSelect" onAction="#handleFolderSelect" styleClass="blueButtons" text="Open Folder" />
+                        </children>
+                     </HBox>
+                  </children>
+               </VBox>
                 </HBox>
                 <TableView fx:id="songTable" prefHeight="400" prefWidth="800" VBox.vgrow="ALWAYS">
                     <columns>
