@@ -577,7 +577,7 @@ public class MainHomeController {
 
     void playFile(File file) {
         // Reset tracking for new track
-        resetPlaybackTracking();
+        //resetPlaybackTracking();
 
         currentlyPlayingFile = file;
         currentlyPlayingTrackId = file.getAbsolutePath(); // Unique identifier for the track
@@ -586,10 +586,10 @@ public class MainHomeController {
         updateQueueView();
 
         // Reset the logged flag when a new file starts playing
-        hasLoggedCurrentTrack = false;
+        //hasLoggedCurrentTrack = false;
 
         // Start playback tracking
-        startPlaybackTracking();
+        //startPlaybackTracking();
 
         // Set audio properties
         MediaPlayer player = MusicPlayerManager.getMediaPlayer();
@@ -739,54 +739,58 @@ public class MainHomeController {
                 playNext();
             });
 
-            if (media != null) {
+            /*if (media != null) {
                 media.getMetadata().addListener((MapChangeListener<String, Object>) change -> {
                     if (change.wasAdded()) {
                         logCurrentTrack();
                     }
                 });
-            }
+            }*/
+
 
             player.setOnPaused(() -> {
                 if (playbackTimer != null) {
-                    playbackTimer.pause();
+                    playbackTimer.stop();  // Only stop the timer, don't reset duration
                 }
             });
 
             player.setOnPlaying(() -> {
-                if (playbackTimer != null) {
-                    playbackTimer.play();
-                } else {
+                // Only start tracking if we haven't already logged this track
+                if (!hasLoggedCurrentTrack) {
                     startPlaybackTracking();
                 }
             });
-
+/*
             player.setOnStopped(() -> {
                 resetPlaybackTracking();
-            });
-
-            player.setOnEndOfMedia(() -> {
-                resetPlaybackTracking();
-                playNext();
-            });
+            }); */
         }
     }
 
     private void startPlaybackTracking() {
-        playbackDuration = Duration.ZERO;
-        hasLoggedCurrentTrack = false;
+        // Only start tracking if not already logged
+        if (hasLoggedCurrentTrack) return;
 
+        // Stop any existing timer
+        if (playbackTimer != null) {
+            playbackTimer.stop();
+        }
+
+        // Create new timer that accumulates playback duration
         playbackTimer = new Timeline(
                 new KeyFrame(Duration.seconds(1), event -> {
-                    playbackDuration = playbackDuration.add(Duration.seconds(1));
+                    MediaPlayer player = MusicPlayerManager.getMediaPlayer();
+                    if (player != null && player.getStatus() == MediaPlayer.Status.PLAYING) {
+                        playbackDuration = playbackDuration.add(Duration.seconds(1));
 
-                    // Log after 10 seconds of continuous playback
-                    if (playbackDuration.greaterThanOrEqualTo(Duration.seconds(10)) && !hasLoggedCurrentTrack) {
-                        logCurrentTrack();
-                        hasLoggedCurrentTrack = true;
+                        // Log after 10 seconds of accumulated playback
+                        if (playbackDuration.greaterThanOrEqualTo(Duration.seconds(10))) {
+                            logCurrentTrack();
+                            playbackTimer.stop(); // Stop after logging
+                        }
                     }
                 })
-        );
+                );
         playbackTimer.setCycleCount(Timeline.INDEFINITE);
         playbackTimer.play();
     }
@@ -1045,6 +1049,7 @@ public class MainHomeController {
                 mediaPlayer.pause();
                 playPauseImage.setImage(playImg);
                 stopPlaybackTracking();
+                if(playbackTimer != null) playbackTimer.pause();
                 break;
             case PAUSED:
             case READY:
@@ -1052,6 +1057,11 @@ public class MainHomeController {
                 mediaPlayer.play();
                 playPauseImage.setImage(pauseImg);
                 startPlaybackTracking();
+                if (playbackTimer != null) {
+                    playbackTimer.play();
+                } else {
+                    startPlaybackTracking();
+                }
                 break;
             default:
                 System.out.println("MediaPlayer status: " + mediaPlayer.getStatus());
