@@ -1,5 +1,8 @@
 package com.example.final13;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
 public class SongInfo {
     private final String title;
     private final String artist;
@@ -13,6 +16,21 @@ public class SongInfo {
         this.album = album;
         this.duration = duration;
         this.path = path;
+    }
+
+    // In SongInfo.java
+    private BooleanProperty queued = new SimpleBooleanProperty();
+
+    public boolean isQueued() {
+        return queued.get();
+    }
+
+    public BooleanProperty queuedProperty() {
+        return queued;
+    }
+
+    public void setQueued(boolean queued) {
+        this.queued.set(queued);
     }
 
     public String getTitle() { return title; }

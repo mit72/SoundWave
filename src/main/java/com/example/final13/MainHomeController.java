@@ -106,6 +106,7 @@ public class MainHomeController {
     private Timeline playbackTimer;
     private String currentlyPlayingTrackId = "";
     private boolean log = true;
+    private List<File> queuedSongs = new ArrayList<>();
 
     private int currentUserId = -1; // This should come from your login system
 
@@ -203,6 +204,41 @@ public class MainHomeController {
             }
         });
 
+
+
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem addToQueueItem = new MenuItem("Add to Queue");
+        addToQueueItem.setOnAction(e -> {
+            SongInfo selected = songTable.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                addToQueue(new File(selected.getPath()));
+            }
+        });
+        contextMenu.getItems().add(addToQueueItem);
+        songTable.setContextMenu(contextMenu);
+    }
+
+    private void addToQueue(File song) {
+        // Add to queuedSongs list first
+        queuedSongs.add(song);
+
+        // Create a task to extract metadata in background
+        Task<SongInfo> metadataTask = new Task<>() {
+            @Override
+            protected SongInfo call() throws Exception {
+                return extractMetadata(song);
+            }
+        };
+
+        metadataTask.setOnSucceeded(e -> {
+            SongInfo songInfo = metadataTask.getValue();
+            songInfo.setQueued(true);
+            Platform.runLater(() -> {
+                updateQueueView(); // This will refresh the queue display
+            });
+        });
+
+        new Thread(metadataTask).start();
     }
 
     private void loadMusicFromFolder(File folder) {
@@ -299,7 +335,16 @@ public class MainHomeController {
     public void playSelectedFromQueue(SongInfo selected) {
         File file = new File(selected.getPath());
 
-        // Find the index of the selected song in the playlist
+        // Check if it's a queued song
+        for (int i = 0; i < queuedSongs.size(); i++) {
+            if (queuedSongs.get(i).equals(file)) {
+                queuedSongs.remove(i);
+                playFile(file);
+                return;
+            }
+        }
+
+        // Existing playlist logic
         for (int i = 0; i < playlist.size(); i++) {
             if (playlist.get(i).equals(file)) {
                 currentTrackIndex = i;
@@ -311,7 +356,7 @@ public class MainHomeController {
 
     private void updateQueueView() {
         if (queueController != null) {
-            queueController.updateQueue(songData, currentTrackIndex, isLoopEnabled);
+            queueController.updateQueue(songData, currentTrackIndex, isLoopEnabled, queuedSongs);
         }
     }
 
@@ -498,17 +543,29 @@ public class MainHomeController {
         }
     }
 
+    public ObservableList<SongInfo> getQueueSongInfos() {
+        ObservableList<SongInfo> infos = FXCollections.observableArrayList();
+        for (File file : queuedSongs) {
+            // Find existing SongInfo if we have it
+            SongInfo found = songData.stream()
+                    .filter(s -> s.getPath().equals(file.getAbsolutePath()))
+                    .findFirst()
+                    .orElseGet(() -> extractMetadata(file));
+
+            found.setQueued(true);
+            infos.add(found);
+        }
+        return infos;
+    }
+
 
     private SongInfo extractMetadata(File file) {
-        String fileName = file.getName();
-        String baseName = fileName.replaceFirst("[.][^.]+$", "");
-
         // Create arrays to hold values (arrays are effectively final)
         final String[] metadata = {
-                baseName,            // title
-                "Unknown Artist",    // artist
-                "Unknown Album",     // album
-                "Unknown"            // duration
+                file.getName().replaceFirst("[.][^.]+$", ""),  // title
+                "Unknown Artist",                             // artist
+                "Unknown Album",                              // album
+                "0:00"                                       // duration
         };
 
         try {
@@ -555,13 +612,13 @@ public class MainHomeController {
             tempPlayer.stop();
 
             // Wait for metadata with timeout
-            if (!latch.await(3, TimeUnit.SECONDS)) {
-                System.out.println("Timeout waiting for metadata: " + fileName);
+            if (!latch.await(2, TimeUnit.SECONDS)) {
+                System.out.println("Timeout waiting for metadata: " + file.getName());
             }
 
             tempPlayer.dispose();
         } catch (Exception e) {
-            System.err.println("Error extracting metadata for: " + fileName);
+            System.err.println("Error extracting metadata for: " + file.getName());
             e.printStackTrace();
         }
 
@@ -849,6 +906,14 @@ public class MainHomeController {
 
     @FXML
     private void playNext() {
+
+        if (!queuedSongs.isEmpty()) {
+            File nextSong = queuedSongs.remove(0);
+            playFile(nextSong);
+            updateQueueView();
+            return;
+        }
+
         if (playlist.isEmpty()) return;
 
         List<File> currentPlaylist = isShuffleEnabled ? shuffledPlaylist : playlist;

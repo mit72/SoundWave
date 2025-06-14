@@ -87,62 +87,67 @@
                   <Insets bottom="20.0" />
                </padding>
             </VBox>
-            <VBox alignment="CENTER" prefHeight="212.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+            <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                <children>
-                  <Label prefHeight="25.0" prefWidth="300.0" styleClass="creamyText" text="USERNAME:">
-                     <font>
-                        <Font name="System Bold" size="16.0" />
-                     </font>
-                  </Label>
-                      <TextField fx:id="usernameField" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="202.0" promptText="Username" styleClass="textField">
-                          <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                          </padding>
-                          <VBox.margin>
-                              <Insets bottom="10.0" />
-                          </VBox.margin>
-                      </TextField>
-                  <Label prefWidth="300.0" styleClass="creamyText" text="PASSWORD:">
-                     <font>
-                        <Font name="System Bold" size="16.0" />
-                     </font>
-                  </Label>
-                      <PasswordField fx:id="passwordField1" maxWidth="-Infinity" prefHeight="25.0" prefWidth="202.0" promptText="Password" styleClass="textField">
-                          <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                          </padding>
-                          <VBox.margin>
-                              <Insets bottom="10.0" />
-                          </VBox.margin>
-                      </PasswordField>
-                  <Label prefWidth="300.0" styleClass="creamyText" text="REPEAT PASSWORD:">
-                     <font>
-                        <Font name="System Bold" size="16.0" />
-                     </font>
-                  </Label>
-                      <PasswordField fx:id="passwordField2" maxWidth="-Infinity" prefWidth="202.0" promptText="Repeat password" styleClass="textField">
-                          <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                          </padding>
-                          <VBox.margin>
-                              <Insets bottom="10.0" />
-                          </VBox.margin>
-                      </PasswordField>
-                  <CheckBox fx:id="rememberMe" mnemonicParsing="false" text="Remember me" textFill="#89cff0" />
+                  <VBox alignment="CENTER" prefHeight="212.0" prefWidth="800.0" VBox.vgrow="NEVER">
+                     <children>
+                        <Label prefHeight="25.0" prefWidth="300.0" styleClass="creamyText" text="USERNAME:">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font>
+                        </Label>
+                            <TextField fx:id="usernameField" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="25.0" prefWidth="202.0" promptText="Username" styleClass="textField">
+                                <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                </padding>
+                                <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                </VBox.margin>
+                            </TextField>
+                        <Label prefWidth="300.0" styleClass="creamyText" text="PASSWORD:">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font>
+                        </Label>
+                            <PasswordField fx:id="passwordField1" maxWidth="-Infinity" prefHeight="25.0" prefWidth="202.0" promptText="Password" styleClass="textField">
+                                <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                </padding>
+                                <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                </VBox.margin>
+                            </PasswordField>
+                        <Label prefWidth="300.0" styleClass="creamyText" text="REPEAT PASSWORD:">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font>
+                        </Label>
+                            <PasswordField fx:id="passwordField2" maxWidth="-Infinity" prefWidth="202.0" promptText="Repeat password" styleClass="textField">
+                                <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                </padding>
+                                <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                </VBox.margin>
+                            </PasswordField>
+                        <CheckBox fx:id="rememberMe" mnemonicParsing="false" text="Remember me" textFill="#89cff0" />
+                     </children>
+                  </VBox>
+                      <HBox alignment="CENTER" prefHeight="59.0" prefWidth="800.0" styleClass="hboxAlign" VBox.vgrow="NEVER">
+                          <children>
+                              <Button fx:id="backButton" mnemonicParsing="false" onAction="#switchToHelloView" prefHeight="40.0" prefWidth="80.0" styleClass="buttonCommon" text="Cancel" />
+                              <Button fx:id="SignInButton" mnemonicParsing="false" onAction="#signIn" prefHeight="40.0" prefWidth="80.0" styleClass="buttonCommon" text="Sign in">
+                                  <font>
+                                      <Font name="System Bold" size="12.0" />
+                                  </font>
+                        </Button>
+                          </children>
+                     <padding>
+                        <Insets bottom="10.0" />
+                     </padding>
+                      </HBox>
                </children>
             </VBox>
-                <HBox alignment="CENTER" prefHeight="59.0" prefWidth="800.0" styleClass="hboxAlign" VBox.vgrow="ALWAYS">
-                    <children>
-                        <Button fx:id="backButton" mnemonicParsing="false" onAction="#switchToHelloView" prefHeight="40.0" prefWidth="80.0" styleClass="buttonCommon" text="Cancel" />
-                        <Button fx:id="SignInButton" mnemonicParsing="false" onAction="#signIn" prefHeight="40.0" prefWidth="80.0" styleClass="buttonCommon" text="Sign in">
-                            <font>
-                                <Font name="System Bold" size="12.0" />
-                            </font></Button>
-                    </children>
-               <padding>
-                  <Insets bottom="10.0" />
-               </padding>
-                </HBox>
             </children>
          <BorderPane.margin>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
