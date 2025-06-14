@@ -10,6 +10,7 @@ How to use:
 - Private session setting is now functional
 - Improved visual style of the application
 - Fixed a bug that would log already logged track after resuming the track
+- Fixed? a bug where metadata wouldn't properly show in the table after seleceting a folder 
 - Added an icon for the app
     
 # Author
