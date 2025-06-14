@@ -2,7 +2,6 @@
 # SoundWave
 How to use:
 - Need Java 21 or later
-- Go to out/artifacts download the latest version
 - Only for Windows devices
 
 # Change log 1.0 RELEASE!
