@@ -32,7 +32,7 @@ public class HelloApplication extends Application {
 
             Scene scene = new Scene(root, 900, 500);
             stage.setScene(scene);
-
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/icons/icon.ico")));
             // Now initialize the stage components
             mainController.initializeStage();
 
@@ -45,6 +45,7 @@ public class HelloApplication extends Application {
 
             Scene scene = new Scene(root, 900, 500);
             stage.setScene(scene);
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/icons/icon.ico")));
         }
 
         stage.getIcons().add(

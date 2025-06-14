@@ -89,7 +89,7 @@
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                <children>
-                  <VBox alignment="CENTER" prefHeight="212.0" prefWidth="800.0" VBox.vgrow="NEVER">
+                  <VBox alignment="TOP_CENTER" prefHeight="212.0" prefWidth="800.0" VBox.vgrow="NEVER">
                      <children>
                         <Label prefHeight="25.0" prefWidth="300.0" styleClass="creamyText" text="USERNAME:">
                            <font>
