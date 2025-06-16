@@ -90,13 +90,13 @@ public class MainHomeController {
     private final Image loopDisabled = new Image(Objects.requireNonNull(getClass().getResource("/com/example/final13/img/arrows-repeat.png")).toExternalForm());
     private boolean isMuted = false;
     private double currentSliderValue = 0.5;
-    List<File> playlist = new ArrayList<>();
+
     private int currentTrackIndex = -1;
     private File currentlyPlayingFile;
     private double currentVolume = 0.5;
     private boolean isLoopEnabled = false;
     boolean isShuffleEnabled = false;
-    List<File> shuffledPlaylist = new ArrayList<>();
+
     private Parent initialCenterContent;
     private Parent currentView;
     private QueueController queueController;
@@ -107,6 +107,8 @@ public class MainHomeController {
     private String currentlyPlayingTrackId = "";
     private boolean log = true;
     private List<File> queuedSongs = new ArrayList<>();
+    List<File> shuffledPlaylist = new ArrayList<>();
+    List<File> playlist = new ArrayList<>();
 
     private int currentUserId = -1; // This should come from your login system
 
@@ -480,8 +482,7 @@ public class MainHomeController {
         });
 
         task.setOnFailed(e -> {
-            // Handle error
-            System.err.println("Error loading files: " + task.getException().getMessage());
+            System.err.println("Napaka pri nalaganju datotek: " + task.getException().getMessage());
         });
 
         new Thread(task).start();
@@ -688,12 +689,12 @@ public class MainHomeController {
     }
 
     private void bindSliderFill(Slider slider) {
-        // Listener to update the slider fill color
+
         ChangeListener<Number> listener = (obs, oldVal, newVal) -> {
             double percentage = (newVal.doubleValue() - slider.getMin()) /
                     (slider.getMax() - slider.getMin()) * 100;
 
-            // Use Platform.runLater to ensure this runs after the UI is fully loaded
+            // runlater da je definitivno ko je UI loaded
             Platform.runLater(() -> {
                 Node track = slider.lookup(".track");
                 if (track != null) {
@@ -708,13 +709,12 @@ public class MainHomeController {
             });
         };
 
-        // Apply initial styling after the UI is ready
+        // zacetni style ko je UI ready
         Platform.runLater(() -> {
-            slider.applyCss();  // Ensure the CSS is applied and the track node exists
-            listener.changed(null, null, slider.getValue());  // Apply the initial value
+            slider.applyCss();
+            listener.changed(null, null, slider.getValue());
         });
 
-        // Add listener to handle future changes
         slider.valueProperty().addListener(listener);
     }
 
@@ -1009,7 +1009,7 @@ public class MainHomeController {
         Object album = metadata.get("album");
         Object image = metadata.get("image");
 
-        // Only update if metadata exists and is not empty
+
         if (title != null && !title.toString().isEmpty()) {
             titleLabel.setText(title.toString());
         }
@@ -1029,7 +1029,7 @@ public class MainHomeController {
         if (image instanceof Image) {
             albumArtImageView.setImage((Image) image);
         } else {
-            // Set fallback image if no image in metadata
+            //backup slika
             Image fallbackImage = new Image(Objects.requireNonNull(
                     getClass().getResource("/com/example/final13/img/music-note.png")).toExternalForm());
             albumArtImageView.setImage(fallbackImage);
@@ -1041,7 +1041,7 @@ public class MainHomeController {
     private void toggleLoop() {
         isLoopEnabled = !isLoopEnabled;
         updateLoopButtonAppearance();
-        updateQueueView(); // Add this line
+        updateQueueView();
     }
 
 
