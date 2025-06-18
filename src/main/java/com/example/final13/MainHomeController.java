@@ -4,10 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
+import javafx.collections.*;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,6 +16,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -109,6 +108,8 @@ public class MainHomeController {
     private List<File> queuedSongs = new ArrayList<>();
     List<File> shuffledPlaylist = new ArrayList<>();
     List<File> playlist = new ArrayList<>();
+    private MediaPlayer mediaPlayer;
+    private Media currentMedia;
 
     private int currentUserId = -1; // This should come from your login system
 
@@ -126,6 +127,15 @@ public class MainHomeController {
 
     public void setLoggingEnabled(boolean enabled) {
         this.log = enabled;
+    }
+
+    static {
+        System.out.println("MainHomeController class loaded");
+    }
+
+    // Add this constructor
+    public MainHomeController() {
+        System.out.println("MainHomeController instance created");
     }
 
     @FXML
@@ -187,22 +197,17 @@ public class MainHomeController {
             loadMusicFromFolder(defaultMusicFolder);
         }
 
-        songTable.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                SongInfo selected = songTable.getSelectionModel().getSelectedItem();
-                if (selected != null) {
-                    File file = new File(selected.getPath());
+        songTable.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                System.out.println("DOUBLE-CLICK CONFIRMED");
+                event.consume();
 
-                    // Update currentTrackIndex
-                    for (int i = 0; i < playlist.size(); i++) {
-                        if (playlist.get(i).equals(file)) {
-                            currentTrackIndex = i;
-                            break;
-                        }
+                Platform.runLater(() -> {
+                    SongInfo selected = songTable.getSelectionModel().getSelectedItem();
+                    if (selected != null) {
+                        playFile(new File(selected.getPath()));
                     }
-
-                    playFile(file);
-                }
+                });
             }
         });
 
@@ -244,7 +249,7 @@ public class MainHomeController {
     }
 
     private void loadMusicFromFolder(File folder) {
-        // Use a Task to load the files in the background (same as before)
+        // Use a Task to load the files in the background
         Task<Void> loadFilesTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -358,7 +363,11 @@ public class MainHomeController {
 
     private void updateQueueView() {
         if (queueController != null) {
-            queueController.updateQueue(songData, currentTrackIndex, isLoopEnabled, queuedSongs);
+            queueController.updateQueue(songData,
+                    currentTrackIndex,
+                    isLoopEnabled,
+                    queuedSongs,
+                    isShuffleEnabled ? shuffledPlaylist : playlist);
         }
     }
 
@@ -521,8 +530,6 @@ public class MainHomeController {
                 protected void succeeded() {
                     super.succeeded();
 
-
-                    // Auto-play the first song if none is playing
                     if (currentTrackIndex == -1) {
                         currentTrackIndex = 0;
                         playCurrentTrack();
@@ -532,14 +539,12 @@ public class MainHomeController {
                 @Override
                 protected void failed() {
                     super.failed();
-                    // Handle any errors that occurred during loading
-                    //e.printStackTrace();
                 }
             };
 
-            // Start the background task
+
             Thread thread = new Thread(loadFilesTask);
-            thread.setDaemon(true); // Allow the thread to exit when the application exits
+            thread.setDaemon(true);
             thread.start();
         }
     }
@@ -906,7 +911,6 @@ public class MainHomeController {
 
     @FXML
     private void playNext() {
-
         if (!queuedSongs.isEmpty()) {
             File nextSong = queuedSongs.remove(0);
             playFile(nextSong);
@@ -922,12 +926,6 @@ public class MainHomeController {
             currentTrackIndex++;
         } else if (isLoopEnabled) {
             currentTrackIndex = 0;
-            // Only reshuffle if we're at the end and shuffle is enabled
-            if (isShuffleEnabled) {
-                // Instead of reshuffling, just start from the beginning of the current shuffled playlist
-                // This maintains the same shuffle order until manually reshuffled
-                currentTrackIndex = 0;
-            }
         } else {
             System.out.println("End of playlist reached");
             return;

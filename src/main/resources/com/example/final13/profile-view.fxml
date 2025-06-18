@@ -73,6 +73,9 @@
                <children>
                   <Line endX="-22.0" fill="#d8c4b6" startX="-100.0" stroke="#d8c4b6" HBox.hgrow="ALWAYS" />
                </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
             </HBox>
             <VBox prefHeight="200.0" prefWidth="558.0">
                <children>

@@ -53,6 +53,8 @@ public class QueueController {
                 }
             }
         });
+
+
     }
 
     public void setMainController(MainHomeController mainController) {
@@ -62,7 +64,8 @@ public class QueueController {
     public void updateQueue(ObservableList<SongInfo> mainPlaylist,
                             int currentIndex,
                             boolean loopEnabled,
-                            List<File> queuedSongs) {
+                            List<File> queuedSongs,
+                            List<File> currentPlaylist) {
 
         filteredQueue.clear();
 
@@ -74,16 +77,21 @@ public class QueueController {
         }
 
         // Add upcoming songs from playlist with default color
-        List<File> currentPlaylist = mainController.isShuffleEnabled ?
-                mainController.shuffledPlaylist :
-                mainController.playlist;
-
         if (currentIndex >= 0 && currentIndex < currentPlaylist.size()) {
-            // Your existing logic for adding upcoming songs...
+            // Add remaining songs in playlist
             for (int i = currentIndex + 1; i < currentPlaylist.size(); i++) {
                 SongInfo song = findOrCreateSongInfo(currentPlaylist.get(i), mainPlaylist);
                 song.setQueued(false);
                 filteredQueue.add(song);
+            }
+
+            // If loop is enabled, add songs from beginning of playlist
+            if (loopEnabled) {
+                for (int i = 0; i <= currentIndex && i < currentPlaylist.size(); i++) {
+                    SongInfo song = findOrCreateSongInfo(currentPlaylist.get(i), mainPlaylist);
+                    song.setQueued(false);
+                    filteredQueue.add(song);
+                }
             }
         }
 
