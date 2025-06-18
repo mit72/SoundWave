@@ -205,7 +205,7 @@ public class MainHomeController {
                 Platform.runLater(() -> {
                     SongInfo selected = songTable.getSelectionModel().getSelectedItem();
                     if (selected != null) {
-                        playFile(new File(selected.getPath()));
+                        playFileAndStart(new File(selected.getPath()));
                     }
                 });
             }
@@ -249,7 +249,6 @@ public class MainHomeController {
     }
 
     private void loadMusicFromFolder(File folder) {
-        // Use a Task to load the files in the background
         Task<Void> loadFilesTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -258,7 +257,6 @@ public class MainHomeController {
                     playlist.clear();
                     songData.clear();
 
-                    // Add all files to the playlist
                     for (File f : files) {
                         playlist.add(f);
                         SongInfo songInfo = extractMetadata(f);
@@ -271,12 +269,15 @@ public class MainHomeController {
             @Override
             protected void succeeded() {
                 super.succeeded();
+                if (!playlist.isEmpty()) {
+                    currentTrackIndex = 0;
+                    playFile(playlist.get(currentTrackIndex));
+                }
             }
 
             @Override
             protected void failed() {
                 super.failed();
-                //e.printStackTrace();
             }
         };
 
@@ -346,7 +347,7 @@ public class MainHomeController {
         for (int i = 0; i < queuedSongs.size(); i++) {
             if (queuedSongs.get(i).equals(file)) {
                 queuedSongs.remove(i);
-                playFile(file);
+                playFileAndStart(file);
                 return;
             }
         }
@@ -355,7 +356,7 @@ public class MainHomeController {
         for (int i = 0; i < playlist.size(); i++) {
             if (playlist.get(i).equals(file)) {
                 currentTrackIndex = i;
-                playFile(file);
+                playFileAndStart(file);
                 break;
             }
         }
@@ -482,16 +483,17 @@ public class MainHomeController {
                 Collections.shuffle(shuffledPlaylist);
             }
 
-            if (currentTrackIndex == -1 && !playlist.isEmpty()) {
+            // Load the first song but don't play it
+            if (!playlist.isEmpty()) {
                 currentTrackIndex = 0;
-                playCurrentTrack();
+                playFile(playlist.get(currentTrackIndex));
             }
 
             updateQueueView();
         });
 
         task.setOnFailed(e -> {
-            System.err.println("Napaka pri nalaganju datotek: " + task.getException().getMessage());
+            System.err.println("Error loading files: " + task.getException().getMessage());
         });
 
         new Thread(task).start();
@@ -503,21 +505,16 @@ public class MainHomeController {
         DirectoryChooser chooser = new DirectoryChooser();
         File dir = chooser.showDialog(stage);
         if (dir != null && dir.isDirectory()) {
-            // Use a Task to load the files in the background
             Task<Void> loadFilesTask = new Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
-                    // Get all mp3 files in the directory
                     File[] files = dir.listFiles(f -> f.getName().endsWith(".mp3"));
                     if (files != null) {
-                        // Clear the playlist and song data
                         playlist.clear();
                         songData.clear();
 
-                        // Add all the files to the playlist
                         for (File f : files) {
                             playlist.add(f);
-                            // You might want to add metadata extraction here
                             SongInfo songInfo = extractMetadata(f);
                             songData.add(songInfo);
                         }
@@ -525,23 +522,15 @@ public class MainHomeController {
                     return null;
                 }
 
-                // After loading files, update the UI
                 @Override
                 protected void succeeded() {
                     super.succeeded();
-
-                    if (currentTrackIndex == -1) {
+                    if (!playlist.isEmpty()) {
                         currentTrackIndex = 0;
-                        playCurrentTrack();
+                        playFile(playlist.get(currentTrackIndex));
                     }
                 }
-
-                @Override
-                protected void failed() {
-                    super.failed();
-                }
             };
-
 
             Thread thread = new Thread(loadFilesTask);
             thread.setDaemon(true);
@@ -639,22 +628,12 @@ public class MainHomeController {
     }
 
     void playFile(File file) {
-        // Reset tracking for new track
-        //resetPlaybackTracking();
-
         currentlyPlayingFile = file;
-        currentlyPlayingTrackId = file.getAbsolutePath(); // Unique identifier for the track
-        MusicPlayerManager.playFile(file);
+        currentlyPlayingTrackId = file.getAbsolutePath();
+        MusicPlayerManager.playFile(file, false); // false means don't play immediately
         setupMediaPlayer();
         updateQueueView();
 
-        // Reset the logged flag when a new file starts playing
-        //hasLoggedCurrentTrack = false;
-
-        // Start playback tracking
-        //startPlaybackTracking();
-
-        // Set audio properties
         MediaPlayer player = MusicPlayerManager.getMediaPlayer();
         if (player != null) {
             player.setVolume(currentVolume);
@@ -725,13 +704,33 @@ public class MainHomeController {
 
     private void setupMediaPlayer() {
         MediaPlayer player = MusicPlayerManager.getMediaPlayer();
-        playPauseImage.setImage(pauseImg);
-        resetPlaybackTracking();
 
+        // Set initial button state based on player status
+        if (player != null) {
+            playPauseImage.setImage(player.getStatus() == MediaPlayer.Status.PLAYING ? pauseImg : playImg);
+
+            // Add listener for status changes
+            player.statusProperty().addListener((obs, oldStatus, newStatus) -> {
+                Platform.runLater(() -> {
+                    playPauseImage.setImage(newStatus == MediaPlayer.Status.PLAYING ? pauseImg : playImg);
+                });
+            });
+
+            player.setOnReady(() -> {
+                updateNowPlayingUI();
+                fullTime.setText(formatTime(player.getTotalDuration()));
+                currentTime.setText(formatTime(player.getCurrentTime()));
+                timeSlider.setMax(player.getTotalDuration().toSeconds());
+            });
+        }
+
+        resetPlaybackTracking();
         timeSlider.setDisable(false);
 
-        player.setVolume(currentVolume);
-        audioSlider.setValue(currentVolume);
+        if (player != null) {
+            player.setVolume(currentVolume);
+            audioSlider.setValue(currentVolume);
+        }
 
 
         audioSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -911,9 +910,11 @@ public class MainHomeController {
 
     @FXML
     private void playNext() {
+        MediaPlayer player = MusicPlayerManager.getMediaPlayer();
+
         if (!queuedSongs.isEmpty()) {
             File nextSong = queuedSongs.remove(0);
-            playFile(nextSong);
+            playFileAndStart(nextSong);
             updateQueueView();
             return;
         }
@@ -932,7 +933,7 @@ public class MainHomeController {
         }
 
         currentlyPlayingFile = currentPlaylist.get(currentTrackIndex);
-        playFile(currentlyPlayingFile);
+        playFileAndStart(currentlyPlayingFile);
         updateQueueView();
     }
 
@@ -949,14 +950,33 @@ public class MainHomeController {
 
         if (currentTrackIndex > 0) {
             currentTrackIndex--;
-            currentlyPlayingFile = currentPlaylist.get(currentTrackIndex);
-            playFile(currentlyPlayingFile);
         } else if (isLoopEnabled) {
             currentTrackIndex = currentPlaylist.size() - 1;
-            currentlyPlayingFile = currentPlaylist.get(currentTrackIndex);
-            playFile(currentlyPlayingFile);
+        } else {
+            return; // No previous song and loop is disabled
         }
+
+        currentlyPlayingFile = currentPlaylist.get(currentTrackIndex);
+        playFileAndStart(currentlyPlayingFile);
         updateQueueView();
+    }
+
+    private void playFileAndStart(File file) {
+        currentlyPlayingFile = file;
+        currentlyPlayingTrackId = file.getAbsolutePath();
+        MusicPlayerManager.playFile(file, true); // true means play immediately
+
+        // Force update the play/pause button to show pause state
+        playPauseImage.setImage(pauseImg);
+
+        setupMediaPlayer();
+        updateQueueView();
+
+        MediaPlayer player = MusicPlayerManager.getMediaPlayer();
+        if (player != null) {
+            player.setVolume(currentVolume);
+            audioSlider.setValue(currentVolume);
+        }
     }
 
 
@@ -1110,21 +1130,15 @@ public class MainHomeController {
         switch (mediaPlayer.getStatus()) {
             case PLAYING:
                 mediaPlayer.pause();
-                playPauseImage.setImage(playImg);
+                // Image will update via the status listener
                 stopPlaybackTracking();
-                if(playbackTimer != null) playbackTimer.pause();
                 break;
             case PAUSED:
             case READY:
             case STOPPED:
                 mediaPlayer.play();
-                playPauseImage.setImage(pauseImg);
+                // Image will update via the status listener
                 startPlaybackTracking();
-                if (playbackTimer != null) {
-                    playbackTimer.play();
-                } else {
-                    startPlaybackTracking();
-                }
                 break;
             default:
                 System.out.println("MediaPlayer status: " + mediaPlayer.getStatus());

@@ -9,13 +9,15 @@ public class MusicPlayerManager {
     private static MediaPlayer mediaPlayer;
     private static Media currentMedia;
 
-    public static void playFile(File file) {
+    public static void playFile(File file, boolean playImmediately) {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
         }
         currentMedia = new Media(file.toURI().toString());
         mediaPlayer = new MediaPlayer(currentMedia);
-        mediaPlayer.play();
+        if (playImmediately) {
+            mediaPlayer.play();
+        }
     }
 
     public static MediaPlayer getMediaPlayer() {
